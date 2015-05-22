@@ -23,7 +23,7 @@ To analyze your data, there are two steps:
 	#dataset = 'data/cs-training.csv' #Original data
 	#dataset = 'cs-training#3B.csv' #Post-impute data
 
-dataset = 'data/cs-training.csv'
+dataset = 'data/cohort1_all.csv'
 
 
 
@@ -69,7 +69,7 @@ def camel_to_snake(column_name):
 def bar(variable, dataset):
 
 	#Define Data
-	data = pd.read_csv(dataset, index_col=0)
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	#Generate Graph
@@ -86,7 +86,7 @@ def bar(variable, dataset):
 def histogram1(variable, dataset, color, bins):
 
 	#Define Data
-	data = pd.read_csv(dataset, index_col=0)
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	#Generate Graph
@@ -103,7 +103,7 @@ def histogram1(variable, dataset, color, bins):
 def histogram2(variable, dataset, color, np1, np2):
 
 	#Define Data
-	data = pd.read_csv(dataset, index_col=0)
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	#Generate Graph
@@ -146,7 +146,7 @@ def summarize_dataset(dataset):
 	To focus on specific variables, please use summary_statistics instead."""
 
 	#Define Data
-	data = pd.read_csv(dataset, index_col=0)
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	for variable in data.columns:
@@ -172,7 +172,7 @@ def summary_statistics(variable, dataset, bin1=5, bin2=10):
 		Histogram bins can be modified. Default is 5 and 10."""
 
 	#Define Data
-	data = pd.read_csv(dataset, index_col=0)
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	print "_"*50
@@ -183,11 +183,14 @@ def summary_statistics(variable, dataset, bin1=5, bin2=10):
 	print "Describe "+str(variable)+": ", '\n', (data[str(variable)].describe())
 	print "Mode: ", (data[str(variable)].mode())
 	#Histogram
-	if count > 1:
-		histogram1(str(variable), dataset, 'c', bin1)
-		histogram1(str(variable), dataset, 'g', bin2)
-		histogram2(str(variable), dataset, 'b', (bin1/float(4)), bin2)
-		histogram2(str(variable), dataset, 'r', (bin1/float(5)), bin2)
+	try:
+		if count > 1:
+			histogram1(str(variable), dataset, 'c', bin1)
+			histogram1(str(variable), dataset, 'g', bin2)
+			histogram2(str(variable), dataset, 'b', (bin1/float(4)), bin2)
+			histogram2(str(variable), dataset, 'r', (bin1/float(5)), bin2)
+	except:
+		pass
 
 
 
@@ -198,17 +201,18 @@ def summary_statistics(variable, dataset, bin1=5, bin2=10):
 dataset_describe(dataset) 
 
 # Load Data to Pandas
-data = pd.read_csv(dataset, index_col=0)
+data = pd.read_csv(dataset, index_col=0, low_memory=False)
 data.columns = [camel_to_snake(col) for col in data.columns]
 
 # Generate Summary Statistics
 for col in data.columns:
-	summary_statistics(col, 'data/cs-training.csv', 5, 10)
+	summary_statistics(col, 'data/cohort1_all.csv', 5, 10)
+
 
 
 #summarize_dataset('data/cs-training.csv')
 
 #bar('serious_dlqin2yrs', 'data/cs-training.csv')
-bar('serious_dlqin2yrs', dataset)
+#bar('serious_dlqin2yrs', dataset)
 
 
