@@ -97,11 +97,11 @@ def process_data(df):
 
     ## Fill missing school data -- use mean imputation for now
     school_vars = ['g6_school_id', 'g7_school_id', 'g8_school_id', 'g9_school_id', 'g10_school_id', 'g11_school_id', 'g12_school_id']
-    #ml.replace_with_mean(df, school_vars)
+    ml.replace_with_mean(df, school_vars)
 
     ## Fill missing grade and test score information -- use mean imputation for now
     grades_tests = ['g6_q1mpa', 'g6_q2mpa', 'g6_q3mpa', 'g6_q4mpa', 'g6_g6mapr','g7_q1mpa', 'g7_q2mpa', 'g7_q3mpa', 'g7_q4mpa', 'g7_g7mapr', 'g8_q1mpa', 'g8_q2mpa', 'g8_q3mpa', 'g8_q4mpa', 'g8_g8mapr', 'g9_q1mpa', 'g9_q2mpa', 'g9_q3mpa', 'g9_q4mpa', 'g9_g8mapr', 'g10_q1mpa', 'g10_q2mpa', 'g10_q3mpa', 'g10_q4mpa', 'g10_psatv', 'g10_psatm', 'g11_q1mpa', 'g11_q2mpa', 'g11_q3mpa', 'g11_q4mpa', 'g11_psatv', 'g11_psatm', 'g12_q1mpa', 'g12_q2mpa', 'g12_q3mpa', 'g12_q4mpa', 'g12_psatv', 'g12_psatm']
-    #ml.replace_with_mean(df, grades_tests)
+    ml.replace_with_mean(df, grades_tests)
 
     ## Fill missing MSAM data
     msam_cols = ['g6_g6msam', 'g7_g7msam', 'g8_g8msam', 'g9_g8msam']
@@ -165,4 +165,4 @@ if __name__ == '__main__':
     dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
     df = summarize_data(dataset)
-    process_data(df)    
+    #process_data(df)    
