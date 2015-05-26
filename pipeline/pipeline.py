@@ -70,7 +70,56 @@ def print_to_csv(df, filename):
 	df.to_csv(filename)
 
 
-### JOSH'S FUNCTIONS HERE ###
+def summarize_dataset(dataset):
+	"""Select dataset to summarize. Use this function to summarize a dataset.
+	To focus on specific variables, please use summary_statistics instead."""
+
+	#Define Data
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
+	data.columns = [camel_to_snake(col) for col in data.columns]
+
+	for variable in data.columns:
+
+		print "_"*50
+		print "Summary Statistics "+str(variable)+": "
+		count = (data[str(variable)].count())
+		Number_variable_lines = line_count(dataset)-1
+		print "Missing values: ", (Number_variable_lines - count)
+		print "Describe "+str(variable)+": ", '\n', (data[str(variable)].describe())
+		print "Mode: ", (data[str(variable)].mode())
+		#Histogram
+		if count > 1:
+			histogram1(str(variable), dataset, 'c', 5)
+			histogram1(str(variable), dataset, 'g', 10)
+			histogram2(str(variable), dataset, 'b', 1.5, 10)
+			histogram2(str(variable), dataset, 'r', 1, 10)
+
+
+
+def summary_statistics(variable, dataset, bin1=5, bin2=10):
+	"""Select variable to summarize. Please input the dataset.
+		Histogram bins can be modified. Default is 5 and 10."""
+
+	#Define Data
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
+	data.columns = [camel_to_snake(col) for col in data.columns]
+
+	print "_"*50
+	print "Summary Statistics "+str(variable)+": "
+	count = (data[str(variable)].count())
+	Number_variable_lines = line_count(dataset)-1
+	print "Missing values: ", (Number_variable_lines - count)
+	print "Describe "+str(variable)+": ", '\n', (data[str(variable)].describe())
+	print "Mode: ", (data[str(variable)].mode())
+	#Histogram
+	try:
+		if count > 1:
+			histogram1(str(variable), dataset, 'c', bin1)
+			histogram1(str(variable), dataset, 'g', bin2)
+			histogram2(str(variable), dataset, 'b', (bin1/float(4)), bin2)
+			histogram2(str(variable), dataset, 'r', (bin1/float(5)), bin2)
+	except:
+		pass
 
 
 def histogram(df, field):
