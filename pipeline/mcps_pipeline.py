@@ -26,23 +26,13 @@ def summarize_data(dataset):
     ## RUN INITIAL SUMMARY STATISTICS ##
     ####################################
 
-    summary = ml.summarize(df)
-    #print summary.T['missing_vals']
-    #ml.print_to_csv(summary, 'summary_stats.csv')
-    #ml.print_to_csv(summary.T, 'summary_stats_vertical.csv')
-
-    ## NOT WORKING ##
-    '''
+    ml.summarize_dataset(dataset)
     for v in variables:
-        try:
-            ml.histogram(df, v)
-        except:
-            pass
-    '''
+        ml.summary_statistics(v, dataset, 5, 10)
 
-    return df, variables
+    return df
 
-def process_data(df, variables):
+def process_data(df):
 
     print "Updating data..."
 
@@ -137,7 +127,7 @@ def process_data(df, variables):
 
     ## Fill missing behavioral data -- use mean imputation for now
     behavioral_cols = ['g6_absrate', 'g6_nsusp','g7_absrate', 'g7_tardyr', 'g7_nsusp', 'g8_absrate', 'g8_tardyr', 'g8_nsusp', 'g9_absrate', 'g9_nsusp', 'g10_absrate', 'g10_nsusp', 'g11_absrate', 'g11_nsusp','g12_absrate', 'g12_nsusp']
-    #ml.replace_with_mean(df, behavioral_cols)
+    ml.replace_with_mean(df, behavioral_cols)
 
     ############################
     ## IMPUTE ENROLLMENT DATA ##
@@ -157,14 +147,16 @@ def process_data(df, variables):
 
     ## Fill missing dropout information with 0
     dropout_vars = ['g6_dropout', 'g7_dropout', 'g8_dropout', 'g9_dropout', 'g10_dropout', 'g11_dropout', 'g12_dropout']
-    #ml.replace_with_value(df, dropout_vars, [0,0,0,0,0,0,0])
+    ml.replace_with_value(df, dropout_vars, [0,0,0,0,0,0,0])
 
     #variables = list(df.columns.values)
     #print variables
 
-    summary = ml.summarize(df)
-    print summary.T
+    #summary = ml.summarize(df)
+    #print summary.T
     #ml.print_to_csv(summary.T, 'updated_summary_stats_vertical.csv')
+
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
 
 #-------------------------------------------------------
 
@@ -172,5 +164,5 @@ if __name__ == '__main__':
 
     dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
-    df, variables = summarize_data(dataset)
-    process_data(df,variables)    
+    df = summarize_data(dataset)
+    process_data(df)    

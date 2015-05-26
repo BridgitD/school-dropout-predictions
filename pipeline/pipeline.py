@@ -69,6 +69,10 @@ def print_to_csv(df, filename):
 
 	df.to_csv(filename)
 
+
+### JOSH'S FUNCTIONS HERE ###
+
+
 def histogram(df, field):
 	'''Given a dataframe and a field, this creates histograms.'''
 
