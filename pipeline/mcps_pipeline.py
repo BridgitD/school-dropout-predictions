@@ -153,7 +153,7 @@ def process_data(df):
 
     print "Fixing newmcps & newus columns..."
     new_cols = ['g9_newmcps', 'g10_newmcps', 'g11_newmcps', 'g12_newmcps', 'g9_newus', 'g10_newus', 'g11_newus', 'g12_newus']
-    for col in newmcps_cols:
+    for col in new_cols:
         for index, row in df.iterrows():
             if row[col] == "Yes":
                 df.ix[index, col] = 1
