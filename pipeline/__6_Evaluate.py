@@ -199,8 +199,10 @@ def evalualte_K_fold(dataset, DV, model, sets):
 
 
 # Unhash to test
-classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN', 'anova_svm']
+#classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN', 'anova_svm']
 #classifiers = ['KNN']
+#classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN']
+classifiers = ['d_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN']
 
 
 # Five-Fold Cross Validation
@@ -208,7 +210,8 @@ def EVAL():
 
 	for clf in classifiers:
 		print "__"*50, "\n"
-		evalualte_K_fold('data/cs-training#3B.csv', 'serious_dlqin2yrs', clf, 5)
+		#evalualte_K_fold('data/clean_data.csv', 'g12_dropout', clf, 5)
+		evalualte_K_fold('data/clean_data2.csv', 'g12_dropout', clf, 5)
 		print "__"*50, "\n"
 
 EVAL()
