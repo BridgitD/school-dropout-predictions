@@ -140,7 +140,7 @@ def process_data(df):
     print "Fixing mobility columns..."
     mobility_cols = ['g10_retained', 'g6_mobility', 'g7_mobility', 'g8_mobility', 'g9_mobility','g10_mobility', 'g11_mobility', 'g12_mobility']
     # Includes g10_retained because it's coded as 0/1 already
-    ml.replace_with_mean(mobility_cols)
+    ml.replace_with_mean(df, mobility_cols)
 
     print "Fixing retention columns..."
     retained_cols = ['g11_retained', 'g12_retained']
