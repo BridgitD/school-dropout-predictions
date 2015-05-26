@@ -113,7 +113,7 @@ def process_data(df, variables):
     grades_tests = ['g6_q1mpa', 'g6_q2mpa', 'g6_q3mpa', 'g6_q4mpa', 'g6_g6mapr','g7_q1mpa', 'g7_q2mpa', 'g7_q3mpa', 'g7_q4mpa', 'g7_g7mapr', 'g8_q1mpa', 'g8_q2mpa', 'g8_q3mpa', 'g8_q4mpa', 'g8_g8mapr', 'g9_q1mpa', 'g9_q2mpa', 'g9_q3mpa', 'g9_q4mpa', 'g9_g8mapr', 'g10_q1mpa', 'g10_q2mpa', 'g10_q3mpa', 'g10_q4mpa', 'g10_psatv', 'g10_psatm', 'g11_q1mpa', 'g11_q2mpa', 'g11_q3mpa', 'g11_q4mpa', 'g11_psatv', 'g11_psatm', 'g12_q1mpa', 'g12_q2mpa', 'g12_q3mpa', 'g12_q4mpa', 'g12_psatv', 'g12_psatm']
     #ml.replace_with_mean(df, grades_tests)
 
-    ## Fill missing MSAM data -- CAN'T FIGURE THIS ONE OUT
+    ## Fill missing MSAM data
     msam_cols = ['g6_g6msam', 'g7_g7msam', 'g8_g8msam', 'g9_g8msam']
     
     #Recode existing data
@@ -121,9 +121,9 @@ def process_data(df, variables):
         for index, row in df.iterrows():
             if row[col] == "Advanced":
                 df.ix[index, col] = 2
-            elif row[col] == "Proficient"
+            elif row[col] == "Proficient":
                 df.ix[index, col] = 1
-            elif row[col] == "Basic"
+            elif row[col] == "Basic":
                 df.ix[index, col] = 0
 
     # Replace missing
