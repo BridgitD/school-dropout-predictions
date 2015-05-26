@@ -25,6 +25,7 @@ def summarize_data(dataset):
     ####################################
     ## RUN INITIAL SUMMARY STATISTICS ##
     ####################################
+    print "Running summary statistics..."
 
     ml.summarize_dataset(dataset)
     for v in variables:
@@ -116,14 +117,14 @@ def process_data(df):
             elif row[col] == "Basic":
                 df.ix[index, col] = 0
 
-    # Replace missing
+    # Impute missing data
     ml.replace_with_mean(df, msam_cols)
 
     ############################
     ## IMPUTE BEHAVIORAL DATA ##
     ############################
 
-    #print "Impute missing behavioral data..."
+    print "Impute missing behavioral data..."
 
     ## Fill missing behavioral data -- use mean imputation for now
     behavioral_cols = ['g6_absrate', 'g6_nsusp','g7_absrate', 'g7_tardyr', 'g7_nsusp', 'g8_absrate', 'g8_tardyr', 'g8_nsusp', 'g9_absrate', 'g9_nsusp', 'g10_absrate', 'g10_nsusp', 'g11_absrate', 'g11_nsusp','g12_absrate', 'g12_nsusp']
@@ -133,11 +134,32 @@ def process_data(df):
     ## IMPUTE ENROLLMENT DATA ##
     ############################
 
-    #print "Imputing missing enrollment data..."
+    print "Imputing missing enrollment data..."
 
-    ## Fill missing enrollment data -- CAN'T FIGURE THIS OUT
-    #enroll_cols = ['g6_mobility', 'g7_mobility', 'g8_mobility', 'g9_mobility', 'g9_newmcps', 'g9_newus','g10_retained', 'g10_mobility', 'g10_newmcps', 'g10_newus','g11_retained', 'g11_mobility', 'g11_newmcps', 'g11_newus','g12_retained', 'g12_mobility', 'g12_newmcps', 'g12_newus']
-    #ml.replace_with_mean(df, enroll_cols)
+    ## Fill missing enrollment data
+    print "Fixing mobility columns..."
+    mobility_cols = ['g10_retained', 'g6_mobility', 'g7_mobility', 'g8_mobility', 'g9_mobility','g10_mobility', 'g11_mobility', 'g12_mobility']
+    # Includes g10_retained because it's coded as 0/1 already
+    ml.replace_with_mean(df, mobility_cols)
+
+    print "Fixing retention columns..."
+    retained_cols = ['g11_retained', 'g12_retained']
+    for col in retained_cols:
+        for index, row in df.iterrows():
+            if pd.isnull(row[col]):
+                df.ix[index, col] = 0
+            else:
+                df.ix[index, col] = 1
+
+    print "Fixing newmcps & newus columns..."
+    new_cols = ['g9_newmcps', 'g10_newmcps', 'g11_newmcps', 'g12_newmcps', 'g9_newus', 'g10_newus', 'g11_newus', 'g12_newus']
+    for col in newmcps_cols:
+        for index, row in df.iterrows():
+            if row[col] == "Yes":
+                df.ix[index, col] = 1
+            else:
+                df.ix[index, col] = 0
+
 
     #########################
     ## IMPUTE DROPOUT DATA ##
@@ -152,11 +174,12 @@ def process_data(df):
     #variables = list(df.columns.values)
     #print variables
 
-    #summary = ml.summarize(df)
-    #print summary.T
+    summary = ml.summarize(df)
+    print summary.T
     #ml.print_to_csv(summary.T, 'updated_summary_stats_vertical.csv')
 
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
+    print "Done!"
 
 #-------------------------------------------------------
 
@@ -164,5 +187,6 @@ if __name__ == '__main__':
 
     dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
-    df = summarize_data(dataset)
-    #process_data(df)    
+    #df = summarize_data(dataset)
+    df = ml.read_data(dataset)
+    process_data(df)
