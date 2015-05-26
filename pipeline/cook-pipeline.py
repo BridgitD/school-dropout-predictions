@@ -14,7 +14,7 @@ from sklearn.metrics import roc_curve, auc, accuracy_score, precision_score, f1_
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree, datasets, linear_model
 from sklearn.svm import LinearSVC
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier 
 
 
 def getSumStats(data):
