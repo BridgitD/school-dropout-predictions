@@ -109,7 +109,11 @@ def clean_data(df):
     ## CREATE DUMMY VARIABLE COLUMNS ##
     ###################################
 
-    pd.get_dummies(df, dummy_na=True)
+    dummies = pd.get_dummies(df, dummy_na=True)
+    df = pd.concat([df, dummies], axis=1)
+
+    # Delete string columns
+    print list(df.select_dtypes(include=['']))
 
     ## Save clean version
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
