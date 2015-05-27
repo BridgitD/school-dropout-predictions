@@ -33,9 +33,9 @@ def summarize_data(dataset):
 
     return df
 
-def process_data(df):
+def clean_data(df):
 
-    print "Updating data..."
+    print "Cleaning data..."
 
     ################################
     ## DROP UNNECESSARY VARIABLES ##
@@ -71,6 +71,21 @@ def process_data(df):
         df.drop(c, axis=1, inplace=True)
     #print df['gender'].value_counts()
 
+
+    ################
+    ## CLEAN DATA ##
+    ################
+
+    print "Cleaning data..."
+    retained_cols = ['g11_retained', 'g12_retained', 'g9_newmcps', 'g10_newmcps', 'g11_newmcps', 'g12_newmcps', 'g9_newus', 'g10_newus', 'g11_newus', 'g12_newus']
+    for col in retained_cols:
+        for index, row in df.iterrows():
+            if pd.isnull(row[col]):
+                df.ix[index, col] = 0
+            else:
+                df.ix[index, col] = 1
+
+
     ###############################
     ## CREATE MISSING DATA FLAGS ##
     ###############################
@@ -89,6 +104,18 @@ def process_data(df):
                 df.ix[index, col_name] = 0
         df.drop(g, axis=1, inplace=True)
         year+=1
+
+    ###################################
+    ## CREATE DUMMY VARIABLE COLUMNS ##
+    ###################################
+
+    pd.get_dummies(df, dummy_na=True)
+
+    ## Save clean version
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
+
+
+def impute_data(dataset):
 
     ##########################
     ## IMPUTE ACADEMIC DATA ##
@@ -142,24 +169,6 @@ def process_data(df):
     # Includes g10_retained because it's coded as 0/1 already
     ml.replace_with_mean(df, mobility_cols)
 
-    print "Fixing retention columns..."
-    retained_cols = ['g11_retained', 'g12_retained']
-    for col in retained_cols:
-        for index, row in df.iterrows():
-            if pd.isnull(row[col]):
-                df.ix[index, col] = 0
-            else:
-                df.ix[index, col] = 1
-
-    print "Fixing newmcps & newus columns..."
-    new_cols = ['g9_newmcps', 'g10_newmcps', 'g11_newmcps', 'g12_newmcps', 'g9_newus', 'g10_newus', 'g11_newus', 'g12_newus']
-    for col in new_cols:
-        for index, row in df.iterrows():
-            if row[col] == "Yes":
-                df.ix[index, col] = 1
-            else:
-                df.ix[index, col] = 0
-
 
     #########################
     ## IMPUTE DROPOUT DATA ##
@@ -178,7 +187,7 @@ def process_data(df):
     print summary.T
     #ml.print_to_csv(summary.T, 'updated_summary_stats_vertical.csv')
 
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
     print "Done!"
 
 #-------------------------------------------------------
@@ -189,4 +198,7 @@ if __name__ == '__main__':
 
     #df = summarize_data(dataset)
     df = ml.read_data(dataset)
-    process_data(df)
+    clean_data(df)
+
+    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    #impute_data(clean_dataset)
