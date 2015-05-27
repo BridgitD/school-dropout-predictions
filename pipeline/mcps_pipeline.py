@@ -113,7 +113,9 @@ def clean_data(df):
     df = pd.concat([df, dummies], axis=1)
 
     # Delete string columns
-    print list(df.select_dtypes(include=['']))
+    string_cols = list(df.select_dtypes(include=['object']))
+    for col in string_cols:
+        df.drop(col, axis=1, inplace=True)
 
     ## Save clean version
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
