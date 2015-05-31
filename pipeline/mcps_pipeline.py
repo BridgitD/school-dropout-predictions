@@ -113,11 +113,9 @@ def clean_data(df):
     ###################################
     print "Creating dummy variables..."
 
-    dummies = pd.get_dummies(df, dummy_na=True)
-    df = pd.concat([df, dummies], axis=1)
-
-    # Delete string columns
     string_cols = list(df.select_dtypes(include=['object']))
+
+    ml.get_dummys(df, string_cols, dummy_na=True)
     for col in string_cols:
         df.drop(col, axis=1, inplace=True)
 

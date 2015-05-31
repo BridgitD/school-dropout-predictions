@@ -278,11 +278,11 @@ def bin_variable(df, variable, num_bins, labels=None):
 	new_label = variable + '_bins'
 	df[new_label] = pd.cut(df[variable], bins=num_bins, labels=labels)
 
-def get_dummys(df, cols):
+def get_dummys(df, cols, **kwargs):
 	'''Creates binary variable from specified column(s)'''
 	# Loop through each variable
 	for variable in cols:
-		dummy_data = pd.get_dummies(df[variable], prefix=variable)
+		dummy_data = pd.get_dummies(df[variable], prefix=variable, **kwargs)
 		
 		# Add new data to dataframe
 		df = pd.concat([df, dummy_data], axis=1)
