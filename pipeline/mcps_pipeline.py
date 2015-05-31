@@ -108,6 +108,7 @@ def clean_data(df):
 
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
 
+def deal_with_dummies(filename):
     ###################################
     ## CREATE DUMMY VARIABLE COLUMNS ##
     ###################################
@@ -115,7 +116,7 @@ def clean_data(df):
 
     string_cols = list(df.select_dtypes(include=['object']))
 
-    ml.get_dummys(df, string_cols, dummy_na=True)
+    df = ml.get_dummys(df, string_cols, dummy_na=True)
     for col in string_cols:
         df.drop(col, axis=1, inplace=True)
 
@@ -124,6 +125,8 @@ def clean_data(df):
 
 
 def impute_data(dataset):
+
+    df = ml.read_data(dataset)
 
     ##########################
     ## IMPUTE ACADEMIC DATA ##
@@ -202,11 +205,14 @@ def impute_data(dataset):
 
 if __name__ == '__main__':
 
-    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+    #dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
     #df = summarize_data(dataset)
-    df = ml.read_data(dataset)
-    clean_data(df)
+    #df = ml.read_data(dataset)
+    #clean_data(df)
 
-    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
+    deal_with_dummies(non_dummy_data)
+
+    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
     #impute_data(clean_dataset)

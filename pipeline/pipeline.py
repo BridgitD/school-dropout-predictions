@@ -286,6 +286,7 @@ def get_dummys(df, cols, **kwargs):
 		
 		# Add new data to dataframe
 		df = pd.concat([df, dummy_data], axis=1)
+		return df
 
 
 # ---------------------------------------------------------------------
