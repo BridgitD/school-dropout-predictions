@@ -189,9 +189,12 @@ def replace_dummy_null_mean(df, null_col, destination_cols):
 	Takes a null column resulting from get_dummies and imputes the mean 
 	of the destination columns.
 	'''
-	for index, row in df.iterrows():
-		if row[null_col] == 1:
-			replace_with_mean(df, destination_cols)
+	for field in destination_cols:
+		mean = df[field].mean()
+	
+		for index, row in df.iterrows():
+			if row[null_col] == 1:
+				df.ix[index,field] = mean
 
 
 ##################
