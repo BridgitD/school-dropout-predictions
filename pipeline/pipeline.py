@@ -184,6 +184,8 @@ def replace_with_other_col(df, variable_missing, variable_fill):
 		if pd.isnull(row[variable_missing]):
 			df.ix[index, variable_missing] = row[variable_fill]
 
+#def replace_dummy_null(df, null_col, destination_col):
+
 ##################
 ## TO ADD LATER ##
 def replace_class_conditional(df, variables, field):

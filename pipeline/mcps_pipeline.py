@@ -84,6 +84,7 @@ def clean_data(df):
                 df.ix[index, col] = 0
             else:
                 df.ix[index, col] = 1
+        df[col] = df[col].astype(int)
 
 
     ###############################
