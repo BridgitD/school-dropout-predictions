@@ -184,7 +184,15 @@ def replace_with_other_col(df, variable_missing, variable_fill):
 		if pd.isnull(row[variable_missing]):
 			df.ix[index, variable_missing] = row[variable_fill]
 
-#def replace_dummy_null(df, null_col, destination_col):
+def replace_dummy_null_mean(df, null_col, destination_cols):
+	'''
+	Takes a null column resulting from get_dummies and imputes the mean 
+	of the destination columns.
+	'''
+	for index, row in df.iterrows():
+		if row[null_col] == 1:
+			replace_with_mean(df, destination_cols)
+
 
 ##################
 ## TO ADD LATER ##

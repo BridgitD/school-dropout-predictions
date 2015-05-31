@@ -148,6 +148,19 @@ def impute_data(dataset):
     ml.replace_with_mean(df, grades_tests)
 
     ## Fill missing MSAM data
+    g6_msam = ['g6_g6msam_Advanced','g6_g6msam_Basic','g6_g6msam_Proficient']
+    ml.replace_dummy_null_mean(df, 'g6_g6msam_nan', g6_msam)
+
+    g7_msam = ['g7_g7msam_Advanced','g7_g7msam_Basic','g7_g7msam_Proficient']
+    ml.replace_dummy_null_mean(df, 'g7_g7msam_nan', g7_msam)
+    
+    g8_msam = ['g8_g8msam_Advanced','g8_g8msam_Basic','g8_g8msam_Proficient']
+    ml.replace_dummy_null_mean(df, 'g8_g8msam_nan', g8_msam)
+
+    g9_msam = ['g9_g8msam_Advanced','g9_g8msam_Basic','g9_g8msam_Proficient']
+    ml.replace_dummy_null_mean(df,'g9_g8msam_nan', g9_msam)
+
+    '''
     msam_cols = ['g6_g6msam', 'g7_g7msam', 'g8_g8msam', 'g9_g8msam']
     
     #Recode existing data
@@ -162,7 +175,7 @@ def impute_data(dataset):
 
     # Impute missing data
     ml.replace_with_mean(df, msam_cols)
-
+    '''
     ############################
     ## IMPUTE BEHAVIORAL DATA ##
     ############################
@@ -216,8 +229,8 @@ if __name__ == '__main__':
     #df = ml.read_data(dataset)
     #clean_data(df)
 
-    non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
-    deal_with_dummies(non_dummy_data)
+    #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
+    #deal_with_dummies(non_dummy_data)
 
-    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
-    #impute_data(clean_dataset)
+    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    impute_data(clean_dataset)
