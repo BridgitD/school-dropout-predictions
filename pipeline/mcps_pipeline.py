@@ -106,9 +106,12 @@ def clean_data(df):
         df.drop(g, axis=1, inplace=True)
         year+=1
 
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
+
     ###################################
     ## CREATE DUMMY VARIABLE COLUMNS ##
     ###################################
+    print "Creating dummy variables..."
 
     dummies = pd.get_dummies(df, dummy_na=True)
     df = pd.concat([df, dummies], axis=1)
