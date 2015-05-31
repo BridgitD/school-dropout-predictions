@@ -108,7 +108,7 @@ def clean_data(df):
 
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
 
-def deal_with_dummies(filename):
+def deal_with_dummies(dataset):
     
     df = ml.read_data(dataset)
 
