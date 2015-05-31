@@ -78,8 +78,8 @@ def clean_data(df):
 
     print "Cleaning data..."
     retained_cols = ['g11_retained', 'g12_retained', 'g9_newmcps', 'g10_newmcps', 'g11_newmcps', 'g12_newmcps', 'g9_newus', 'g10_newus', 'g11_newus', 'g12_newus']
-    for col in retained_cols:
-        for index, row in df.iterrows():
+    for index, row in df.iterrows():
+        for col in retained_cols:
             if pd.isnull(row[col]):
                 df.ix[index, col] = 0
             else:
