@@ -254,13 +254,17 @@ def choose_data(df, grade):
 
     while i <= 12:
         prefixes.append('g' + str(i))
+        i+=1
 
     for col in all_columns:
         for p in prefixes:
             if not col.startswith(p):
-                cols_to_use.append(col)
+                if col not in cols_to_use:
+                    cols_to_use.append(col)
 
-    print cols_to_use
+    dv = 'g' + str(grade) + '_dropout'
+
+    return dv, cols_to_use
 
     '''
     # Loop through grades and append columns to include
@@ -312,7 +316,7 @@ if __name__ == '__main__':
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
     df = ml.read_data(imputed_dataset)
-    print choose_data(df, 11)
+    dv, cols =  choose_data(df, 12)
 
     ## TRAINING DATA: FEATURE GENERATION
 
