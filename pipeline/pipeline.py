@@ -12,13 +12,13 @@ import pylab
 import sys
 import time
 import sklearn as sk
-from sklearn.cross_validation import KFold
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
+#from sklearn.cross_validation import KFold
+#from sklearn.linear_model import LogisticRegression
+#from sklearn.neighbors import KNeighborsClassifier
+#from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
+#from sklearn.tree import DecisionTreeClassifier
+#from sklearn.svm import LinearSVC
+#from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
 
 # Code adapted from https://github.com/yhat/DataGotham2013/
 
