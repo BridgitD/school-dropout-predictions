@@ -115,7 +115,7 @@ def evalualte_K_fold(dataset, DV, model, sets):
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	#Metrics
-	metrics = ['accuracy', 'average_precision', 'precision', 'recall', 'f1', 'roc_auc', 'log_loss', 'mean_squared_error', 'r2']
+	metrics = ['accuracy', 'average_precision', 'precision', 'recall', 'f1', 'roc_auc']
 	
 	# ________ Determine which classifier ________ #
 	if model == 'logit':
@@ -126,13 +126,17 @@ def evalualte_K_fold(dataset, DV, model, sets):
 
 
 	elif model == 'lin_svc':
-		X, y = Build_Data_Set(dataset, DV, 0, 150000)
-		clf = lin_svc(dataset, DV, 0, 150000)
+		X, y = Build_Data_Set(dataset, DV)
+		clf = lin_svc(dataset, DV)
 
+	elif model == 'svc':
+		y = data[str(DV)]
+		X = data[data.columns - [str(DV)]]
+		clf = svc(dataset, DV)
 
 	elif model == 'anova_svm':
-		X, y = Build_Data_Set(dataset, DV, 0, 150000)
-		clf = anova_svm(dataset, DV, 3, 0, 150000)
+		X, y = Build_Data_Set(dataset, DV)
+		clf = anova_svm(dataset, DV, 3)
 
 	elif model == 'd_tree':
 		y = data[str(DV)]
@@ -200,11 +204,7 @@ def evalualte_K_fold(dataset, DV, model, sets):
 
 
 # Unhash to test
-#classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN', 'anova_svm']
-#classifiers = ['logit']
-classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN']
-#classifiers = ['d_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN']
-
+classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN', 'svc']
 
 
 # Five-Fold Cross Validation
@@ -212,8 +212,7 @@ def EVAL():
 
 	for clf in classifiers:
 		print "__"*50, "\n"
-		#evalualte_K_fold('data/clean_data.csv', 'g12_dropout', clf, 5)
-		evalualte_K_fold('data/clean_data3.csv', 'dropout', clf, 5)
+		evalualte_K_fold('data/imputed_data.csv', 'g12_dropout', clf, 5)
 		print "__"*50, "\n"
 
 EVAL()

@@ -191,8 +191,6 @@ def lin_svc(dataset, DV, lower_limit=0, upper_limit=''):
 	Prohibitive run time for N > 20,000. Cross-validation even worse.
 	Consider anova_svm instead.""" 
 
-
-
 	start = time.time()
 
 	X, y = Build_Data_Set(dataset, DV, lower_limit, upper_limit)
@@ -205,9 +203,35 @@ def lin_svc(dataset, DV, lower_limit=0, upper_limit=''):
 	print "Runtime, base model: %.3f" % (end-start), "seconds."
 	return model 
 
-
 # Unhash to test:
 #lin_svc('data/cs-training#3B.csv', 'serious_dlqin2yrs', 0, 150000)
+
+def svc(dataset, DV):
+	"""Runs a linear for a given DV, using all remaining
+	variables as features.
+	Prohibitive run time for N > 20,000. Cross-validation even worse.
+	Consider anova_svm instead.""" 
+
+	start = time.time()
+
+	# Load Data to Pandas
+	data = pd.read_csv(dataset, index_col=0)
+	data.columns = [camel_to_snake(col) for col in data.columns]
+
+	#DV
+	y = data[str(DV)]
+	X = data[data.columns - [str(DV)]]
+
+	X = preprocessing.scale(X)
+
+	clf = SVC(kernel="linear", C= 1.0)
+	model = clf.fit(X, y)
+
+	end = time.time()
+	print "Classifier: Linear SVC"
+	print "Runtime, base model: %.3f" % (end-start), "seconds."
+	return model 
+
 
 
 def anova_svm(dataset, DV, k, lower_limit=0, upper_limit=''):

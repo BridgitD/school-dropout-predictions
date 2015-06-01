@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab
-import sys
+import sys, re, csv
 import time
 import sklearn as sk
 #from sklearn.cross_validation import KFold
@@ -37,6 +37,21 @@ def read_data(filename):
 	original = pd.read_csv(filename, header=0)
 	df = original.copy()
 	return df
+
+def camel_to_snake(column_name):
+    """
+    Converts a string that is camelCase into snake_case
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', column_name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+def line_count(dataset):
+		with open(dataset, 'rU') as data_file:
+			reader = csv.reader(data_file)
+			lines = list(reader)
+			#Total File Rows
+			XR = len(lines)
+			return XR
 
 # ---------------------------------------------------------------------
 
@@ -69,6 +84,37 @@ def print_to_csv(df, filename):
 
 	df.to_csv(filename)
 
+def histogram1(variable, dataset, color, bins):
+
+	#Define Data
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
+	data.columns = [camel_to_snake(col) for col in data.columns]
+
+	#Generate Graph
+	fig = data[variable].hist(bins=bins, color=color)
+	fig.set_xlabel(variable) #defines the x axis label
+	fig.set_ylabel('Number of Observations') #defines y axis label
+	fig.set_title(variable+' Distribution') #defines graph title
+	plt.draw()
+	plt.savefig("output/histograms/"+variable+"_histogram1_"+str(bins)+".jpg")
+	plt.clf()
+
+
+def histogram2(variable, dataset, color, np1, np2):
+
+	#Define Data
+	data = pd.read_csv(dataset, index_col=0, low_memory=False)
+	data.columns = [camel_to_snake(col) for col in data.columns]
+
+	#Generate Graph
+	fig = data[variable].hist(bins=np.arange(np1, np2), color=color)
+	fig.set_xlabel(variable) #defines the x axis label
+	fig.set_ylabel('Number of Observations') #defines y axis label
+	fig.set_title(variable+' Distribution') #defines graph title
+	plt.draw()
+	plt.savefig("output/histograms/"+variable+"_histogram2_"+str(np1)+".jpg")
+	plt.clf()
+
 
 def summarize_dataset(dataset):
 	"""Select dataset to summarize. Use this function to summarize a dataset.
@@ -89,10 +135,13 @@ def summarize_dataset(dataset):
 		print "Mode: ", (data[str(variable)].mode())
 		#Histogram
 		if count > 1:
-			histogram1(str(variable), dataset, 'c', 5)
-			histogram1(str(variable), dataset, 'g', 10)
-			histogram2(str(variable), dataset, 'b', 1.5, 10)
-			histogram2(str(variable), dataset, 'r', 1, 10)
+			try:
+				histogram1(str(variable), dataset, 'c', 5)
+				histogram1(str(variable), dataset, 'g', 10)
+				histogram2(str(variable), dataset, 'b', 1.5, 10)
+				histogram2(str(variable), dataset, 'r', 1, 10)
+			except:
+				pass
 
 
 
@@ -153,10 +202,18 @@ def replace_with_value(df, variables, values):
 	This function takes a dataframe and a list of variables that match
 	this criteria and replaces null values with the specified value.
 	'''
-	for i in range(len(variables)):
-		variable = variables[i]
-		value = values[i]
+	if len(variables) <= 2:
+		variable = variables
+		value = values
 		df[variable] = df[variable].fillna(value)
+
+	elif len(variables) > 2:
+		for i in range(len(variables)):
+			variable = variables[i]
+			value = values[i]
+			df[variable] = df[variable].fillna(value)
+
+
 
 def replace_with_mean(df, variables):
 	'''
