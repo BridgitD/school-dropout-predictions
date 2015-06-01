@@ -289,8 +289,8 @@ if __name__ == '__main__':
     dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
     ## RUN SUMMARY STATISTICS
-    #df = summarize_data(train_data)
-    
+    df = summarize_data(dataset)
+    '''
     ## CLEAN DATA
     df = ml.read_data(dataset)
     clean_data(df, 1)
@@ -330,3 +330,4 @@ if __name__ == '__main__':
     #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
     #impute_data(clean_dataset, 'cohort1')
     #impute_data(clean_dataset, 'cohort2')
+    '''
