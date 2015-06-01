@@ -49,13 +49,13 @@ def clean_data(df, cohort):
 
     print "Dropping unnecessary variables..."
 
-    if cohort == 'cohort1':
+    if cohort == 1:
         print "for cohort 1..."
         variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
         for v in variables_to_drop:
             df.drop(v, axis=1, inplace=True)
 
-    elif cohort == 'cohort2':
+    elif cohort == 2:
         print "for cohort 2..."
         variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
         for v in variables_to_drop:
@@ -124,8 +124,8 @@ def clean_data(df, cohort):
         year+=1
 
 
-    ml.print_to_csv(df, 'data/predummy_data.csv')
-    #ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
+    #ml.print_to_csv(df, 'data/predummy_data.csv')
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
 
 
 def deal_with_dummies(dataset):
@@ -175,10 +175,10 @@ def impute_data(dataset, cohort):
     g6_msam = ['g6_g6msam_Advanced','g6_g6msam_Basic','g6_g6msam_Proficient']
     ml.replace_dummy_null_mean(df, 'g6_g6msam_nan', g6_msam)
 
-    if cohort == 'cohort1':
+    if cohort == 1:
         g7_msam = ['g7_g7msam_Advanced','g7_g7msam_Basic','g7_g7msam_Proficient']
         ml.replace_dummy_null_mean(df, 'g7_g7msam_nan', g7_msam)
-    elif cohort == 'cohort2':
+    elif cohort == 2:
         g7_msam = ['g7_g7msam_ ','g7_g7msam_1','g7_g7msam_2', 'g7_g7msam_3']
         ml.replace_dummy_null_mean(df, 'g7_g7msam_nan', g7_msam)
 
@@ -229,7 +229,7 @@ def impute_data(dataset, cohort):
     #print variables
 
 
-
+    '''
     ############################
     # IMPUTE NEIGHBORHOOD DATA #
     ############################
@@ -240,14 +240,14 @@ def impute_data(dataset, cohort):
     print "Fixing neighborhood columns..."
     neighborhood_cols = ['suspensionrate',  'mobilityrateentrantswithdra',  'attendancerate',   'avg_class_size',   'studentinstructionalstaffratio',   'dropoutrate',  'grade12documenteddecisionco',  'grade12documenteddecisionem',  'grade12documenteddecisionmi',  'grad12docdec_col_emp', 'graduationrate',   'studentsmeetinguniversitysyste',   'Est_Households_2012',  'Est_Population_2012',  'Med_Household_Income_2012',    'Mean_Household_Income_2012',   'Pop_Below_Poverty_2012',   'Percent_Below_Poverty_2012',   'Pop_Under18_2012', 'Under18_Below_Poverty_2012',   'Under18_Below_Poverty_Percent_2012',   'Housholds_on_Food_stamps_with_Children_Under18_2012',  'Housholds_Pop_on_Food_Stamps_2012',    'Pop_BlackAA_2012', 'Pop_White_2012',   'Bt_18_24_percent_less_than_High_School_2012',  'Bt_18_24_percent_High_School_2012',    'Bt_18_24_percent_Some_College_or_AA_2012', 'Bt_1824_percent_BA_or_Higher_2012',    'Over_25_percent_less_than_9th_grade_2012', 'Over_25_percent_9th_12th_2012',    'Over_25_percent_High_School_2012', 'Over_25__percent_Some_College_No_Deg_2012',    'Over_25_percent_AA_2012',  'Over_25_percent_Bachelors_2012',   'Over_25_percent_Graduate_or_Professionals_2012']
     ml.replace_with_mean(df, neighborhood_cols)
+    '''
 
-
-    summary = ml.summarize(df)
-    print summary.T
+    #summary = ml.summarize(df)
+    #print summary.T
     #ml.print_to_csv(summary.T, 'updated_summary_stats_vertical.csv')
 
-    ml.print_to_csv(df, 'data/imputed_data.csv')
-    #ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
+    #ml.print_to_csv(df, 'data/imputed_data.csv')
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
     print "Done!"
 
 def choose_data(df, grade):
@@ -288,14 +288,14 @@ if __name__ == '__main__':
 
     #dataset = "data/cohort1_all_school.csv"
     #dataset = "data/cohort2_all_school.csv"
-    #dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv"
+    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
     ## RUN SUMMARY STATISTICS
     #df = summarize_data(train_data)
     
     ## CLEAN DATA
-    #df = ml.read_data(dataset)
-    #clean_data(df)
+    df = ml.read_data(dataset)
+    clean_data(df, 1)
 
     #clean_data(df, 'cohort1')
     #clean_data(df, 'cohort2')
@@ -306,7 +306,7 @@ if __name__ == '__main__':
 
     ## TRAINING DATA: IMPUTATION
     clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
-    impute_data(clean_dataset, 'cohort1')
+    impute_data(clean_dataset, 1)
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
