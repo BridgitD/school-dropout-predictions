@@ -33,7 +33,7 @@ def summarize_data(dataset):
 
     return df
 
-def clean_data(df):
+def clean_data(df, cohort):
 
     print "Cleaning data..."
 
@@ -43,9 +43,20 @@ def clean_data(df):
 
     print "Dropping unnecessary variables..."
 
-    variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
-    for v in variables_to_drop:
-        df.drop(v, axis=1, inplace=True)
+    if cohort == 'cohort1':
+        print "for cohort 1..."
+        variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
+        for v in variables_to_drop:
+            df.drop(v, axis=1, inplace=True)
+
+    elif cohort == 'cohort2':
+        print "for cohort 2..."
+        variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
+        for v in variables_to_drop:
+            df.drop(v, axis=1, inplace=True)
+
+    else:
+        pass
 
     #######################
     ## COMBINE VARIABLES ##
@@ -106,7 +117,10 @@ def clean_data(df):
         df.drop(g, axis=1, inplace=True)
         year+=1
 
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
+
+    ml.print_to_csv(df, 'data/predummy_data.csv')
+    #ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
+
 
 def deal_with_dummies(dataset):
     
@@ -126,10 +140,11 @@ def deal_with_dummies(dataset):
         df.drop(col, axis=1, inplace=True)
 
     ## Save clean version
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
+    ml.print_to_csv(df, 'data/clean_data.csv')
+    #ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
 
 
-def impute_data(dataset):
+def impute_data(dataset, cohort):
 
     df = ml.read_data(dataset)
 
@@ -147,13 +162,20 @@ def impute_data(dataset):
     grades_tests = ['g6_q1mpa', 'g6_q2mpa', 'g6_q3mpa', 'g6_q4mpa', 'g6_g6mapr','g7_q1mpa', 'g7_q2mpa', 'g7_q3mpa', 'g7_q4mpa', 'g7_g7mapr', 'g8_q1mpa', 'g8_q2mpa', 'g8_q3mpa', 'g8_q4mpa', 'g8_g8mapr', 'g9_q1mpa', 'g9_q2mpa', 'g9_q3mpa', 'g9_q4mpa', 'g9_g8mapr', 'g10_q1mpa', 'g10_q2mpa', 'g10_q3mpa', 'g10_q4mpa', 'g10_psatv', 'g10_psatm', 'g11_q1mpa', 'g11_q2mpa', 'g11_q3mpa', 'g11_q4mpa', 'g11_psatv', 'g11_psatm', 'g12_q1mpa', 'g12_q2mpa', 'g12_q3mpa', 'g12_q4mpa', 'g12_psatv', 'g12_psatm']
     ml.replace_with_mean(df, grades_tests)
 
+    ## Fill in missing id with dummy
+    ml.replace_with_value(df, 'id', 0)
+
     ## Fill missing MSAM data
     g6_msam = ['g6_g6msam_Advanced','g6_g6msam_Basic','g6_g6msam_Proficient']
     ml.replace_dummy_null_mean(df, 'g6_g6msam_nan', g6_msam)
 
-    g7_msam = ['g7_g7msam_Advanced','g7_g7msam_Basic','g7_g7msam_Proficient']
-    ml.replace_dummy_null_mean(df, 'g7_g7msam_nan', g7_msam)
-    
+    if cohort == 'cohort1':
+        g7_msam = ['g7_g7msam_Advanced','g7_g7msam_Basic','g7_g7msam_Proficient']
+        ml.replace_dummy_null_mean(df, 'g7_g7msam_nan', g7_msam)
+    elif cohort == 'cohort2':
+        g7_msam = ['g7_g7msam_ ','g7_g7msam_1','g7_g7msam_2', 'g7_g7msam_3']
+        ml.replace_dummy_null_mean(df, 'g7_g7msam_nan', g7_msam)
+
     g8_msam = ['g8_g8msam_Advanced','g8_g8msam_Basic','g8_g8msam_Proficient']
     ml.replace_dummy_null_mean(df, 'g8_g8msam_nan', g8_msam)
 
@@ -171,6 +193,9 @@ def impute_data(dataset):
     behavioral_cols = ['g6_absrate', 'g6_nsusp','g7_absrate', 'g7_tardyr', 'g7_nsusp', 'g8_absrate', 'g8_tardyr', 'g8_nsusp', 'g9_absrate', 'g9_nsusp', 'g10_absrate', 'g10_nsusp', 'g11_absrate', 'g11_nsusp','g12_absrate', 'g12_nsusp']
     ml.replace_with_mean(df, behavioral_cols)
 
+    ## Fill in missing birthday data
+    #ml.replace_with_mean(df, 'birthday')
+
     ############################
     ## IMPUTE ENROLLMENT DATA ##
     ############################
@@ -179,7 +204,7 @@ def impute_data(dataset):
 
     ## Fill missing enrollment data
     print "Fixing mobility columns..."
-    mobility_cols = ['g10_retained', 'g6_mobility', 'g7_mobility', 'g8_mobility', 'g9_mobility','g10_mobility', 'g11_mobility', 'g12_mobility']
+    mobility_cols = ['g10_retained', 'g6_mobility', 'g7_mobility', 'g8_mobility', 'g9_mobility', 'g9_retained','g10_mobility', 'g11_mobility', 'g12_mobility', 'birthday']
     # Includes g10_retained because it's coded as 0/1 already
     ml.replace_with_mean(df, mobility_cols)
 
@@ -191,31 +216,52 @@ def impute_data(dataset):
     print "Impute missing droput information..."
 
     ## Fill missing dropout information with 0
-    dropout_vars = ['g6_dropout', 'g7_dropout', 'g8_dropout', 'g9_dropout', 'g10_dropout', 'g11_dropout', 'g12_dropout']
-    ml.replace_with_value(df, dropout_vars, [0,0,0,0,0,0,0])
+    dropout_vars = ['g6_dropout', 'g7_dropout', 'g8_dropout', 'g9_dropout', 'g10_dropout', 'g11_dropout', 'g12_dropout', 'dropout']
+    ml.replace_with_value(df, dropout_vars, [0,0,0,0,0,0,0,0])
 
     #variables = list(df.columns.values)
     #print variables
+
+
+
+    ############################
+    # IMPUTE NEIGHBORHOOD DATA #
+    ############################
+
+    print "Imputing missing school neighborhood data..."
+
+    ## Fill missing school neighborhood data
+    print "Fixing neighborhood columns..."
+    neighborhood_cols = ['suspensionrate',  'mobilityrateentrantswithdra',  'attendancerate',   'avg_class_size',   'studentinstructionalstaffratio',   'dropoutrate',  'grade12documenteddecisionco',  'grade12documenteddecisionem',  'grade12documenteddecisionmi',  'grad12docdec_col_emp', 'graduationrate',   'studentsmeetinguniversitysyste',   'Est_Households_2012',  'Est_Population_2012',  'Med_Household_Income_2012',    'Mean_Household_Income_2012',   'Pop_Below_Poverty_2012',   'Percent_Below_Poverty_2012',   'Pop_Under18_2012', 'Under18_Below_Poverty_2012',   'Under18_Below_Poverty_Percent_2012',   'Housholds_on_Food_stamps_with_Children_Under18_2012',  'Housholds_Pop_on_Food_Stamps_2012',    'Pop_BlackAA_2012', 'Pop_White_2012',   'Bt_18_24_percent_less_than_High_School_2012',  'Bt_18_24_percent_High_School_2012',    'Bt_18_24_percent_Some_College_or_AA_2012', 'Bt_1824_percent_BA_or_Higher_2012',    'Over_25_percent_less_than_9th_grade_2012', 'Over_25_percent_9th_12th_2012',    'Over_25_percent_High_School_2012', 'Over_25__percent_Some_College_No_Deg_2012',    'Over_25_percent_AA_2012',  'Over_25_percent_Bachelors_2012',   'Over_25_percent_Graduate_or_Professionals_2012']
+    ml.replace_with_mean(df, neighborhood_cols)
+
 
     summary = ml.summarize(df)
     print summary.T
     #ml.print_to_csv(summary.T, 'updated_summary_stats_vertical.csv')
 
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
+    ml.print_to_csv(df, 'data/imputed_data.csv')
+    #ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
     print "Done!"
 
 #-------------------------------------------------------
 
 if __name__ == '__main__':
 
-    #dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+    dataset = "data/cohort1_all_school.csv"
+    #dataset = "data/cohort2_all_school.csv"
+    #dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv"
 
     #df = summarize_data(dataset)
     #df = ml.read_data(dataset)
-    #clean_data(df)
+    #clean_data(df, 'cohort1')
+    #clean_data(df, 'cohort2')
 
+    non_dummy_data = 'data/predummy_data.csv'
     #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
-    #deal_with_dummies(non_dummy_data)
+    deal_with_dummies(non_dummy_data)
 
-    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
-    impute_data(clean_dataset)
+    clean_dataset = 'data/clean_data.csv'
+    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    impute_data(clean_dataset, 'cohort1')
+    #impute_data(clean_dataset, 'cohort2')
