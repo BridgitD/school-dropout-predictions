@@ -204,18 +204,47 @@ def impute_data(dataset):
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
     print "Done!"
 
+def choose_data(df, grade):
+
+    all_columns = list(df.columns.values)
+    cols_to_use = []
+
+    # Loop through grades and append columns to include
+    if grade == 12:
+        for col in all_columns:
+            if col.startswith('g6_') or col.startswith('g7_') or col.startswith('g8_') or col.startswith('g9_') or col.startswith('g10_') or col.startswith('g11_'):
+                cols_to_use.append(col)
+
+    print cols_to_use
+
 #-------------------------------------------------------
 
 if __name__ == '__main__':
 
-    #dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+    ## ORIGINAL DATASETS
+    #train_data = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+    #test_data = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
 
-    #df = summarize_data(dataset)
+    ## RUN SUMMARY STATISTICS
+    #df = summarize_data(train_data)
+    
+    ## CLEAN DATA
     #df = ml.read_data(dataset)
     #clean_data(df)
-
     #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
     #deal_with_dummies(non_dummy_data)
 
-    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
-    impute_data(clean_dataset)
+    ## TRAINING DATA: IMPUTATION
+    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    #impute_data(clean_dataset)
+
+    ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
+    imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
+    df = ml.read_data(imputed_dataset)
+    choose_data(df, 12)
+
+    ## TRAINING DATA: FEATURE GENERATION
+
+    ## TRAINING DATA: MODEL FITTING
+
+    ## TRAINING DATA: ID MISCLASSIFICATION
