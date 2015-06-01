@@ -167,7 +167,7 @@ def impute_data(dataset, cohort):
     ml.replace_with_mean(df, grades_tests)
 
     ## Fill in missing id with dummy
-    ml.replace_with_value(df, 'id', 0)
+    #ml.replace_with_value(df, 'id', 0)
 
     ## Fill missing MSAM data
     g6_msam = ['g6_g6msam_Advanced','g6_g6msam_Basic','g6_g6msam_Proficient']
@@ -289,18 +289,20 @@ if __name__ == '__main__':
     dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 
     ## RUN SUMMARY STATISTICS
-    df = summarize_data(dataset)
-    '''
+    #df = summarize_data(dataset)
+    
     ## CLEAN DATA
-    df = ml.read_data(dataset)
-    clean_data(df, 1)
+    #df = ml.read_data(dataset)
+    #print list(df.columns.values)
+    
+    #clean_data(df, 1)
 
     #clean_data(df, 'cohort1')
     #clean_data(df, 'cohort2')
 
     #non_dummy_data = 'data/predummy_data.csv'
-    non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
-    deal_with_dummies(non_dummy_data)
+    #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
+    #deal_with_dummies(non_dummy_data)
 
     ## TRAINING DATA: IMPUTATION
     clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
@@ -330,4 +332,3 @@ if __name__ == '__main__':
     #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
     #impute_data(clean_dataset, 'cohort1')
     #impute_data(clean_dataset, 'cohort2')
-    '''
