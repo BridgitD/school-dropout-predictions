@@ -319,7 +319,7 @@ if __name__ == '__main__':
     # Classifiers to test
     classifiers = [('logistic_regression', LogisticRegression())]
                     #('k_nearest_neighbors', KNeighborsClassifier()),
-                    #('decision_tree', DecisionTreeClassifier()),
+                    #('decision_tree', DecisionTreeClassifier())]
                     #('SVM', LinearSVC()),
                     #('random_forest', RandomForestClassifier()),
                     #('boosting', GradientBoostingClassifier()),

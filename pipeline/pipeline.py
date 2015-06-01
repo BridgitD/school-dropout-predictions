@@ -427,16 +427,17 @@ def test_classifier(df, X, y, classifiers):
 
 	for name, clf in classifiers:
 		model = clf
+
 		model.fit(df[X], df[y])
 		y_pred = model.predict_proba(df[X])
 		#print y_pred[:,0]
 	
 		var_name = name + '_predict'
-                print var_name
+                #print var_name
 		df[var_name] = y_pred[:,0]
 
 		correct = name + '_correct'
-		print correct
+		#print correct
 	
 		for index, row in df.iterrows():
 			# Use threshold of 0.75
@@ -444,8 +445,35 @@ def test_classifier(df, X, y, classifiers):
 				df.ix[index,correct] = 1
 			else:
 				df.ix[index,correct] = 0
+		#print df[y]
+		#print df[correct]
+		#print summarize(df[correct])
+		#print df.groupby(df[correct]).mean()
+		tree = DecisionTreeClassifier()
+		tree.fit(df[X], df[correct])
+		get_tree_decisions(tree, df.columns)
 
-	print summarize(df[correct])
+# Borrowed heavily from http://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree
+def get_tree_decisions(tree, feature_names):
+	left      = tree.tree_.children_left
+        right     = tree.tree_.children_right
+        threshold = tree.tree_.threshold
+        features  = [feature_names[i] for i in tree.tree_.feature]
+        value = tree.tree_.value
+
+        def recurse(left, right, threshold, features, node):
+                if (threshold[node] != -2):
+                        print "if ( " + features[node] + " <= " + str(threshold[node]) + " ) {"
+                        if left[node] != -1:
+                                recurse (left, right, threshold, features,left[node])
+                        print "      } else {"
+                        if right[node] != -1:
+                                recurse (left, right, threshold, features,right[node])
+                        print "}"
+                else:
+                        print "return " + str(value[node])
+
+        recurse(left, right, threshold, features, 0)
 	
 def evaluate_classifier(df, index, y_real, y_predict):
 	'''
