@@ -160,22 +160,7 @@ def impute_data(dataset):
     g9_msam = ['g9_g8msam_Advanced','g9_g8msam_Basic','g9_g8msam_Proficient']
     ml.replace_dummy_null_mean(df,'g9_g8msam_nan', g9_msam)
 
-    '''
-    msam_cols = ['g6_g6msam', 'g7_g7msam', 'g8_g8msam', 'g9_g8msam']
     
-    #Recode existing data
-    for col in msam_cols:
-        for index, row in df.iterrows():
-            if row[col] == "Advanced":
-                df.ix[index, col] = 2
-            elif row[col] == "Proficient":
-                df.ix[index, col] = 1
-            elif row[col] == "Basic":
-                df.ix[index, col] = 0
-
-    # Impute missing data
-    ml.replace_with_mean(df, msam_cols)
-    '''
     ############################
     ## IMPUTE BEHAVIORAL DATA ##
     ############################
