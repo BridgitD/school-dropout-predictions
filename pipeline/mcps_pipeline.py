@@ -251,11 +251,18 @@ def choose_data(df, grade):
 
     # Loop through grades and append columns to include
     if grade == 12:
+        dv = 'g12_dropout'
         for col in all_columns:
             if col.startswith('g6_') or col.startswith('g7_') or col.startswith('g8_') or col.startswith('g9_') or col.startswith('g10_') or col.startswith('g11_'):
                 cols_to_use.append(col)
+        return dv, cols_to_use
 
-    print cols_to_use
+    if grade == 11:
+        dv = 'g11_dropout'
+        for col in all_columns:
+            if not col.startswith('g11_') or not col.startswith('g12_'):
+                cols_to_use.append(col)
+        return cols_to_use
 
 #-------------------------------------------------------
 
@@ -290,14 +297,14 @@ if __name__ == '__main__':
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
     df = ml.read_data(imputed_dataset)
-    choose_data(df, 12)
+    print choose_data(df, 11)
 
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
 
     ## TRAINING DATA: ID MISCLASSIFICATION
-    clean_dataset = 'data/clean_data.csv'
+    #clean_dataset = 'data/clean_data.csv'
     #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
     #impute_data(clean_dataset, 'cohort1')
     #impute_data(clean_dataset, 'cohort2')
