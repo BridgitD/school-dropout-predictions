@@ -12,13 +12,13 @@ import pylab
 import sys, re, csv
 import time
 import sklearn as sk
-#from sklearn.cross_validation import KFold
-#from sklearn.linear_model import LogisticRegression
-#from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
-#from sklearn.tree import DecisionTreeClassifier
-#from sklearn.svm import LinearSVC
-#from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
+from sklearn.cross_validation import KFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import LinearSVC
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
 
 # Code adapted from https://github.com/yhat/DataGotham2013/
 
@@ -384,12 +384,18 @@ def build_classifiers(X, y):
 		print name
 
 		# Construct K-folds
-		kf = KFold(len(y), n_folds=5, shuffle=True)
+		#kf = KFold(len(y), n_folds=5, shuffle=True)
 		y_pred = y.copy()
 
 		rv.loc[index,'classifier'] = name
 		start_time = time.time()
 		
+		# Initialize classifier
+		model = clf
+		model.fit(X, y)
+		y_pred = model.predict(X)
+
+		'''
 		# Iterate through folds
 		for train_index, test_index in kf:
 			X_train, X_test = X[train_index], X[test_index]
@@ -399,7 +405,8 @@ def build_classifiers(X, y):
 			model = clf
 			model.fit(X_train, y_train)
 			y_pred[test_index] = model.predict(X_test)
-		
+		'''
+
 		end_time = time.time()
 		#print pd.value_counts(predictions)
 
@@ -411,6 +418,30 @@ def build_classifiers(X, y):
 
 	return rv
 
+def test_classifier(df, X, y, classifiers):
+	'''
+	Takes a dataframe (df), column names of predictors (X) and a dependent
+	variable (y). Loops over generic classifiers to find predictions. Creates
+	a decision tree using prediction misclassification as the dependent variable.
+	'''
+
+	for name, clf in classifiers:
+		model = clf
+		model.fit(df[X], df[y])
+		y_pred = model.predict_proba()
+
+		var_name = name + '_predict'
+		df[var_name] = y_pred
+
+		correct = name + '_correct'
+
+		for index, row in df.iterrows():
+			if row[y] == row[var_name]:
+				row[correct] = 1
+			else:
+				row[correct] = 0
+
+	print summarize(df)
 		
 def evaluate_classifier(df, index, y_real, y_predict):
 	'''

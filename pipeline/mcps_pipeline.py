@@ -266,22 +266,6 @@ def choose_data(df, grade):
 
     return dv, cols_to_use
 
-    '''
-    # Loop through grades and append columns to include
-    if grade == 12:
-        dv = 'g12_dropout'
-        for col in all_columns:
-            if col.startswith('g6_') or col.startswith('g7_') or col.startswith('g8_') or col.startswith('g9_') or col.startswith('g10_') or col.startswith('g11_'):
-                cols_to_use.append(col)
-        return dv, cols_to_use
-
-    if grade == 11:
-        dv = 'g11_dropout'
-        for col in all_columns:
-            if not col.startswith('g11_') or not col.startswith('g12_'):
-                cols_to_use.append(col)
-        return cols_to_use
-    '''
 
 #-------------------------------------------------------
 
@@ -321,6 +305,16 @@ if __name__ == '__main__':
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
+    # Classifiers to test
+    classifiers = [('logistic_regression', LogisticRegression())]
+                    #('k_nearest_neighbors', KNeighborsClassifier()),
+                    #('decision_tree', DecisionTreeClassifier()),
+                    #('SVM', LinearSVC()),
+                    #('random_forest', RandomForestClassifier()),
+                    #('boosting', GradientBoostingClassifier()),
+                    #('bagging', BaggingClassifier())]
+
+    ml.test_classifier(df, cols, dv, classifiers)
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'
