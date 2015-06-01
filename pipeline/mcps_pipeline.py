@@ -138,11 +138,9 @@ def deal_with_dummies(dataset):
     print "Creating dummy variables..."
 
     string_cols = list(df.select_dtypes(include=['object']))
-    print string_cols
-
+    
     df = ml.get_dummys(df, string_cols, dummy_na=True)
     for col in string_cols:
-        print col
         df.drop(col, axis=1, inplace=True)
 
     ## Save clean version
