@@ -249,6 +249,20 @@ def choose_data(df, grade):
     all_columns = list(df.columns.values)
     cols_to_use = []
 
+    i = grade
+    prefixes = []
+
+    while i <= 12:
+        prefixes.append('g' + str(i))
+
+    for col in all_columns:
+        for p in prefixes:
+            if not col.startswith(p):
+                cols_to_use.append(col)
+
+    print cols_to_use
+
+    '''
     # Loop through grades and append columns to include
     if grade == 12:
         dv = 'g12_dropout'
@@ -263,6 +277,7 @@ def choose_data(df, grade):
             if not col.startswith('g11_') or not col.startswith('g12_'):
                 cols_to_use.append(col)
         return cols_to_use
+    '''
 
 #-------------------------------------------------------
 
