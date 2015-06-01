@@ -271,7 +271,7 @@ def choose_data(df, grade):
             cols_to_use.pop(index)
 
     dv = 'g' + str(grade) + '_dropout'
-    print cols_to_use
+    #print cols_to_use
 
     return dv, cols_to_use
 
@@ -305,8 +305,8 @@ if __name__ == '__main__':
     #deal_with_dummies(non_dummy_data)
 
     ## TRAINING DATA: IMPUTATION
-    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
-    impute_data(clean_dataset, 1)
+    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    #impute_data(clean_dataset, 1)
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
@@ -317,7 +317,7 @@ if __name__ == '__main__':
 
     ## TRAINING DATA: MODEL FITTING
     # Classifiers to test
-#    classifiers = [('logistic_regression', LogisticRegression())]
+    classifiers = [('logistic_regression', LogisticRegression())]
                     #('k_nearest_neighbors', KNeighborsClassifier()),
                     #('decision_tree', DecisionTreeClassifier()),
                     #('SVM', LinearSVC()),
@@ -325,7 +325,7 @@ if __name__ == '__main__':
                     #('boosting', GradientBoostingClassifier()),
                     #('bagging', BaggingClassifier())]
 
-#    ml.test_classifier(df, X, y, classifiers)
+    ml.test_classifier(df, X, y, classifiers)
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'

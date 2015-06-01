@@ -428,21 +428,25 @@ def test_classifier(df, X, y, classifiers):
 	for name, clf in classifiers:
 		model = clf
 		model.fit(df[X], df[y])
-		y_pred = model.predict_proba()
-
+		y_pred = model.predict_proba(df[X])
+		#print y_pred[:,0]
+	
 		var_name = name + '_predict'
-		df[var_name] = y_pred
+                print var_name
+		df[var_name] = y_pred[:,0]
 
 		correct = name + '_correct'
-
+		print correct
+	
 		for index, row in df.iterrows():
-			if row[y] == row[var_name]:
-				row[correct] = 1
+			# Use threshold of 0.75
+			if row[var_name] > 0.75:
+				df.ix[index,correct] = 1
 			else:
-				row[correct] = 0
+				df.ix[index,correct] = 0
 
-	print summarize(df)
-		
+	print summarize(df[correct])
+	
 def evaluate_classifier(df, index, y_real, y_predict):
 	'''
 	For an index of a given classifier, evaluate it by various metrics
