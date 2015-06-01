@@ -8,7 +8,13 @@
 import pandas as pd
 import numpy as np
 import pipeline as ml
-
+from sklearn.cross_validation import KFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier#, GradientBoostingClassifier, BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import LinearSVC
+#from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
 
 def summarize_data(dataset):
 
@@ -140,8 +146,8 @@ def deal_with_dummies(dataset):
         df.drop(col, axis=1, inplace=True)
 
     ## Save clean version
-    ml.print_to_csv(df, 'data/clean_data.csv')
-    #ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
+    #ml.print_to_csv(df, 'data/clean_data.csv')
+    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
 
 
 def impute_data(dataset, cohort):
@@ -262,7 +268,12 @@ def choose_data(df, grade):
                 if col not in cols_to_use:
                     cols_to_use.append(col)
 
+    for index, val in enumerate(cols_to_use):
+        if val.startswith('Unnamed'):
+            cols_to_use.pop(index)
+
     dv = 'g' + str(grade) + '_dropout'
+    print cols_to_use
 
     return dv, cols_to_use
 
@@ -290,23 +301,23 @@ if __name__ == '__main__':
     #clean_data(df, 'cohort2')
 
     #non_dummy_data = 'data/predummy_data.csv'
-    #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
-    #deal_with_dummies(non_dummy_data)
+    non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
+    deal_with_dummies(non_dummy_data)
 
     ## TRAINING DATA: IMPUTATION
-    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
-    #impute_data(clean_dataset)
+    clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
+    impute_data(clean_dataset, 'cohort1')
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
     df = ml.read_data(imputed_dataset)
-    dv, cols =  choose_data(df, 12)
+    y, X =  choose_data(df, 12)
 
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
     # Classifiers to test
-    classifiers = [('logistic_regression', LogisticRegression())]
+#    classifiers = [('logistic_regression', LogisticRegression())]
                     #('k_nearest_neighbors', KNeighborsClassifier()),
                     #('decision_tree', DecisionTreeClassifier()),
                     #('SVM', LinearSVC()),
@@ -314,7 +325,7 @@ if __name__ == '__main__':
                     #('boosting', GradientBoostingClassifier()),
                     #('bagging', BaggingClassifier())]
 
-    ml.test_classifier(df, cols, dv, classifiers)
+#    ml.test_classifier(df, X, y, classifiers)
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'

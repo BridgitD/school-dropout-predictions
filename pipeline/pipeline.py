@@ -15,10 +15,10 @@ import sklearn as sk
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier#, GradientBoostingClassifier, BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
+#from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
 
 # Code adapted from https://github.com/yhat/DataGotham2013/
 
@@ -34,7 +34,7 @@ def read_data(filename):
 	'''
 	Takes a filename and returns a dataframe.
 	'''
-	original = pd.read_csv(filename, header=0)
+	original = pd.read_csv(filename, header=0, index_col='id')
 	df = original.copy()
 	return df
 
