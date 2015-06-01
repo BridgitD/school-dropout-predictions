@@ -449,7 +449,7 @@ def test_classifier(df, X, y, classifiers):
 		#print df[correct]
 		#print summarize(df[correct])
 		#print df.groupby(df[correct]).mean()
-		tree = DecisionTreeClassifier()
+		tree = DecisionTreeClassifier(max_depth=5)
 		tree.fit(df[X], df[correct])
 		get_tree_decisions(tree, df.columns)
 
