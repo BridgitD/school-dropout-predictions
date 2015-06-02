@@ -154,11 +154,13 @@ def deal_with_dummies(df, cohort):
 
 
 def choose_data(df, grade):
+    print "Choosing data..."
 
     if isinstance(df, str):
         df = ml.read_data(df)
 
     #Find columns to use
+    print "Choosing columns..."
     all_columns = list(df.columns.values)
     cols_to_use = []
 
@@ -180,9 +182,9 @@ def choose_data(df, grade):
             cols_to_use.pop(index)
 
     dv = 'g' + str(grade) + '_dropout'
-    #print cols_to_use
 
     #Find rows to use
+    print "Choosing rows..."
     data9 = df[df['g6_dropout'] !=1]
     data9 = data9[data9['g7_dropout'] !=1]
     data9 = data9[data9['g8_dropout'] !=1]
@@ -191,13 +193,13 @@ def choose_data(df, grade):
     data12 = data11[data11['g11_dropout'] !=1]
 
     if grade == 9:
-        return dv, cols_to_use, data9
+        return data9[dv], data9[cols_to_use]
     elif grade == 10:
-        return dv, cols_to_use, data10
+        return data10[dv], data10[cols_to_use]
     elif grade == 11:
-        return dv, cols_to_use, data11
+        return data11[dv], data11[cols_to_use]
     elif grade == 12:
-        return dv, cols_to_use, data12
+        return data12[dv], data12[cols_to_use]
 
 
 def impute_data(df, cohort):
@@ -337,7 +339,8 @@ if __name__ == '__main__':
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
-    y, X =  choose_data(df, 12)
+    df = ml.read_data(imputed_dataset)
+    y, X = choose_data(df, 12)
 
     ## TRAINING DATA: FEATURE GENERATION
 

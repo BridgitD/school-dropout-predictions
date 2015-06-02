@@ -372,8 +372,11 @@ def build_classifiers(df, X, y, classifiers):
 	for name, clf in classifiers:
 		print "Building " + name + '...'
 
+		print X
+
 		# Construct K-folds
 		kf = KFold(len(y), n_folds=5, shuffle=True)
+		print len(y), len(X)
 		y_pred = y.copy()
 
 		# Iterate through folds
