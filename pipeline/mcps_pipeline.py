@@ -183,8 +183,21 @@ def choose_data(df, grade):
     #print cols_to_use
 
     #Find rows to use
+    data9 = df[df['g6_dropout'] !=1]
+    data9 = data9[data9['g7_dropout'] !=1]
+    data9 = data9[data9['g8_dropout'] !=1]
+    data10 = data9[data9['g9_dropout'] !=1]
+    data11 = data10[data10['g10_dropout'] !=1]
+    data12 = data11[data11['g11_dropout'] !=1]
 
-    return dv, cols_to_use, df
+    if grade == 9:
+        return dv, cols_to_use, data9
+    elif grade == 10:
+        return dv, cols_to_use, data10
+    elif grade == 11:
+        return dv, cols_to_use, data11
+    elif grade == 12:
+        return dv, cols_to_use, data12
 
 
 def impute_data(df, cohort):
@@ -294,31 +307,30 @@ def impute_data(df, cohort):
 if __name__ == '__main__':
 
     ## ORIGINAL DATASETS
-#   dataset = "data/cohort1_all_school.csv"
-#   dataset = "data/cohort2_all_school.csv"
-    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
-    test = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
+#    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+#    test = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
 
     ## RUN SUMMARY STATISTICS
-#   df = summarize_data(dataset)
+#    df = summarize_data(dataset)
 
     ## CLEAN DATA
-    #df = ml.read_data(dataset)
-    #print "Cleaning Cohort 1..."
-    #predummy_data_cohort1 = clean_data(df, 1)
+#    df = ml.read_data(dataset)
+#    print "Cleaning Cohort 1..."
+#    predummy_data_cohort1 = clean_data(df, 1)
     
-    #print "Cleaning Cohort 2..."
-    #predummy_data_cohort2 = clean_data(df, 2)
+#    print "Cleaning Cohort 2..."
+#    predummy_data_cohort2 = clean_data(df, 2)
 
-    #non_dummy_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort1.csv'
-    #non_dummy_cohort2 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort2.csv'
-    #deal_with_dummies(non_dummy_cohort1, 1)
-    #deal_with_dummies(non_dummy_cohort2, 2)
+#    non_dummy_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort1.csv'
+#    non_dummy_cohort2 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort2.csv'
+#    deal_with_dummies(non_dummy_cohort1, 1)
+#    deal_with_dummies(non_dummy_cohort2, 2)
 
     ## TRAINING DATA: CHOOSE SUBSET
     clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
     grade = sys.argv[1]
-    df = choose_data(clean_cohort1, grade)
+    dv, cols_to_use, df = choose_data(clean_cohort1, grade)
+    print df[cols_to_use]
 
     ## TRAINING DATA: IMPUTATION
     #impute_data(clean_dataset, 1)
