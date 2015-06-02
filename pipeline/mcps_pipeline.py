@@ -297,9 +297,10 @@ def impute_data(df, cohort):
     #print summary.T
     #ml.print_to_csv(summary.T, 'updated_summary_stats_vertical.csv')
 
-    #ml.print_to_csv(df, 'data/imputed_data.csv')
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
+    return_file = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data_cohort' + str(cohort) + '.csv'
+    ml.print_to_csv(df, return_file)
     print "Done!"
+    return df
 
 
 #-------------------------------------------------------
@@ -328,13 +329,11 @@ if __name__ == '__main__':
 
     ## TRAINING DATA: CHOOSE SUBSET
     clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
-#    grade = sys.argv[1]
     dv, cols_to_use, df = choose_data(clean_cohort1, 12)
-    print df[cols_to_use].columns
-    print dv
-
+ 
     ## TRAINING DATA: IMPUTATION
-    #impute_data(clean_dataset, 1)
+    df = impute_data(df[cols_to_use], 1)
+    print ml.summarize(df)
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     #imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
