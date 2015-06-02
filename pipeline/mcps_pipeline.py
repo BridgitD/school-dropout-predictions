@@ -339,13 +339,11 @@ if __name__ == '__main__':
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
     y, X =  choose_data(df, 12)
 
-    
-
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
     # Classifiers to test
-    #classifiers = [('logistic_regression', LogisticRegression())]
+    classifiers = [('logistic_regression', LogisticRegression())]
                     #('k_nearest_neighbors', KNeighborsClassifier()),
                     #('decision_tree', DecisionTreeClassifier())]
                     #('SVM', LinearSVC()),
@@ -353,6 +351,7 @@ if __name__ == '__main__':
                     #('boosting', GradientBoostingClassifier()),
                     #('bagging', BaggingClassifier())]
 
+    ml.build_classifiers(df, X, y, classifiers)
     #ml.test_classifier(df, X, y, classifiers)
 
     ## TRAINING DATA: ID MISCLASSIFICATION

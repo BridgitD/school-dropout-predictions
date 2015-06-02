@@ -362,40 +362,20 @@ def get_dummys(df, cols, **kwargs):
 ## STEP 5: BUILD AND EVALUATE CLASSIFIERS - Create comparison table of the performace
 ## of each classifier on each evaluation metric
 
-def build_classifiers(X, y):
+def build_classifiers(df, X, y, classifiers):
 	'''
 	Takes a dataframe of features (X) and a dataframe of the variable to predict (y). 
 	Returns a new dataframe comparing each classifier's performace on 
 	the given evaluation metrics.
 	'''
-	rv = pd.DataFrame()
-
-	# Classifiers to test
-	classifiers = [('logistic_regression', LogisticRegression()),
-					('k_nearest_neighbors', KNeighborsClassifier()),
-					('decision_tree', DecisionTreeClassifier()),
-					('SVM', LinearSVC()),
-					('random_forest', RandomForestClassifier()),
-					('boosting', GradientBoostingClassifier()),
-					('bagging', BaggingClassifier())]
-
 	index = 0
 	for name, clf in classifiers:
-		print name
+		print "Building " + name + '...'
 
 		# Construct K-folds
-		#kf = KFold(len(y), n_folds=5, shuffle=True)
+		kf = KFold(len(y), n_folds=5, shuffle=True)
 		y_pred = y.copy()
 
-		rv.loc[index,'classifier'] = name
-		start_time = time.time()
-		
-		# Initialize classifier
-		model = clf
-		model.fit(X, y)
-		y_pred = model.predict(X)
-
-		'''
 		# Iterate through folds
 		for train_index, test_index in kf:
 			X_train, X_test = X[train_index], X[test_index]
@@ -405,53 +385,37 @@ def build_classifiers(X, y):
 			model = clf
 			model.fit(X_train, y_train)
 			y_pred[test_index] = model.predict(X_test)
-		'''
 
-		end_time = time.time()
-		#print pd.value_counts(predictions)
-
-		# Calculate running time
-		rv.loc[index, 'time'] = end_time - start_time
-
-		evaluate_classifier(rv, index, y, y_pred)
+		test_classifier(df, X, y, y_pred)
+#		evaluate_classifier(rv, index, y, y_pred)
 		index += 1
 
-	return rv
+#	return rv
 
-def test_classifier(df, X, y, classifiers):
+def test_classifier(df, X, y, y_pred):
 	'''
 	Takes a dataframe (df), column names of predictors (X) and a dependent
 	variable (y). Loops over generic classifiers to find predictions. Creates
 	a decision tree using prediction misclassification as the dependent variable.
 	'''
 
-	for name, clf in classifiers:
-		model = clf
-
-		model.fit(df[X], df[y])
-		y_pred = model.predict_proba(df[X])
-		#print y_pred[:,0]
+	var_name = name + '_predict'
+	df[var_name] = y_pred[:,0]
+	correct = name + '_correct'
 	
-		var_name = name + '_predict'
-                #print var_name
-		df[var_name] = y_pred[:,0]
-
-		correct = name + '_correct'
-		#print correct
-	
-		for index, row in df.iterrows():
-			# Use threshold of 0.75
-			if row[var_name] > 0.75:
-				df.ix[index,correct] = 1
-			else:
-				df.ix[index,correct] = 0
-		#print df[y]
-		#print df[correct]
-		#print summarize(df[correct])
-		#print df.groupby(df[correct]).mean()
-		tree = DecisionTreeClassifier(max_depth=5)
-		tree.fit(df[X], df[correct])
-		get_tree_decisions(tree, df.columns)
+	# Determine "correctness" based on 0.5 threshold
+	for index, row in df.iterrows():
+		if row[var_name] > 0.5:
+			df.ix[index,correct] = 1
+		else:
+			df.ix[index,correct] = 0
+	#print df[y]
+	#print df[correct]
+	#print summarize(df[correct])
+	#print df.groupby(df[correct]).mean()
+	tree = DecisionTreeClassifier(max_depth=5)
+	tree.fit(df[X], df[correct])
+	get_tree_decisions(tree, df.columns)
 
 # Borrowed heavily from http://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree
 def get_tree_decisions(tree, feature_names):
