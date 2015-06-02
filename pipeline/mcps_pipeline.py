@@ -123,15 +123,14 @@ def clean_data(df, cohort):
         df.drop(g, axis=1, inplace=True)
         year+=1
 
+    return_file = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort' + str(cohort) + '.csv'
+    ml.print_to_csv(df, return_file)
 
-    #ml.print_to_csv(df, 'data/predummy_data.csv')
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv')
+    return df
 
 
-def deal_with_dummies(dataset):
+def deal_with_dummies(df):
     
-    df = ml.read_data(dataset)
-
     ###################################
     ## CREATE DUMMY VARIABLE COLUMNS ##
     ###################################
@@ -148,9 +147,37 @@ def deal_with_dummies(dataset):
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
 
 
-def impute_data(dataset, cohort):
+def choose_data(df, grade):
 
-    df = ml.read_data(dataset)
+    all_columns = list(df.columns.values)
+    cols_to_use = []
+
+    i = grade
+    prefixes = []
+
+    while i <= 12:
+        prefixes.append('g' + str(i))
+        i+=1
+
+    for col in all_columns:
+        for p in prefixes:
+            if not col.startswith(p):
+                if col not in cols_to_use:
+                    cols_to_use.append(col)
+
+    for index, val in enumerate(cols_to_use):
+        if val.startswith('Unnamed'):
+            cols_to_use.pop(index)
+
+    dv = 'g' + str(grade) + '_dropout'
+    #print cols_to_use
+
+
+
+    return dv, cols_to_use
+
+
+def impute_data(df, cohort):
 
     ##########################
     ## IMPUTE ACADEMIC DATA ##
@@ -248,57 +275,27 @@ def impute_data(dataset, cohort):
     ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv')
     print "Done!"
 
-def choose_data(df, grade):
-
-    all_columns = list(df.columns.values)
-    cols_to_use = []
-
-    i = grade
-    prefixes = []
-
-    while i <= 12:
-        prefixes.append('g' + str(i))
-        i+=1
-
-    for col in all_columns:
-        for p in prefixes:
-            if not col.startswith(p):
-                if col not in cols_to_use:
-                    cols_to_use.append(col)
-
-    for index, val in enumerate(cols_to_use):
-        if val.startswith('Unnamed'):
-            cols_to_use.pop(index)
-
-    dv = 'g' + str(grade) + '_dropout'
-    #print cols_to_use
-
-    return dv, cols_to_use
-
 
 #-------------------------------------------------------
 
 if __name__ == '__main__':
 
     ## ORIGINAL DATASETS
-    #train_data = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
-    #test_data = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
-
-    #dataset = "data/cohort1_all_school.csv"
-    #dataset = "data/cohort2_all_school.csv"
+#   dataset = "data/cohort1_all_school.csv"
+#   dataset = "data/cohort2_all_school.csv"
     dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+    test = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
 
     ## RUN SUMMARY STATISTICS
-    #df = summarize_data(dataset)
-    
-    ## CLEAN DATA
-    #df = ml.read_data(dataset)
-    #print list(df.columns.values)
-    
-    #clean_data(df, 1)
+#   df = summarize_data(dataset)
 
-    #clean_data(df, 'cohort1')
-    #clean_data(df, 'cohort2')
+    ## CLEAN DATA
+    df = ml.read_data(dataset)
+    print "Cleaning Cohort 1..."
+    predummy_data_cohort1 = clean_data(df, 1)
+    
+    print "Cleaning Cohort 2..."
+    predummy_data_cohort2 = clean_data(df, 2)
 
     #non_dummy_data = 'data/predummy_data.csv'
     #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
@@ -309,15 +306,15 @@ if __name__ == '__main__':
     #impute_data(clean_dataset, 1)
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
-    imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
-    df = ml.read_data(imputed_dataset)
-    y, X =  choose_data(df, 12)
+    #imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
+    #df = ml.read_data(imputed_dataset)
+    #y, X =  choose_data(df, 12)
 
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
     # Classifiers to test
-    classifiers = [('logistic_regression', LogisticRegression())]
+    #classifiers = [('logistic_regression', LogisticRegression())]
                     #('k_nearest_neighbors', KNeighborsClassifier()),
                     #('decision_tree', DecisionTreeClassifier())]
                     #('SVM', LinearSVC()),
@@ -325,7 +322,7 @@ if __name__ == '__main__':
                     #('boosting', GradientBoostingClassifier()),
                     #('bagging', BaggingClassifier())]
 
-    ml.test_classifier(df, X, y, classifiers)
+    #ml.test_classifier(df, X, y, classifiers)
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'
