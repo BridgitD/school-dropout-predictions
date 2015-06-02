@@ -328,9 +328,10 @@ if __name__ == '__main__':
 
     ## TRAINING DATA: CHOOSE SUBSET
     clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
-    grade = sys.argv[1]
-    dv, cols_to_use, df = choose_data(clean_cohort1, grade)
-    print df[cols_to_use]
+#    grade = sys.argv[1]
+    dv, cols_to_use, df = choose_data(clean_cohort1, 12)
+    print df[cols_to_use].columns
+    print dv
 
     ## TRAINING DATA: IMPUTATION
     #impute_data(clean_dataset, 1)
