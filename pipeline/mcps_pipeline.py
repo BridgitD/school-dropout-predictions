@@ -328,17 +328,18 @@ if __name__ == '__main__':
 #    deal_with_dummies(non_dummy_cohort2, 2)
 
     ## TRAINING DATA: CHOOSE SUBSET
-    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
-    dv, cols_to_use, df = choose_data(clean_cohort1, 12)
+#    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
+#    dv, cols_to_use, df = choose_data(clean_cohort1, 12)
  
     ## TRAINING DATA: IMPUTATION
-    df = impute_data(df[cols_to_use], 1)
-    print ml.summarize(df)
+#    df = df[cols_to_use]
+#    df = impute_data(df, 1)
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
-    #imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
-    #df = ml.read_data(imputed_dataset)
-    #y, X =  choose_data(df, 12)
+    imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
+    y, X =  choose_data(df, 12)
+
+    
 
     ## TRAINING DATA: FEATURE GENERATION
 
