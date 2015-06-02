@@ -8,6 +8,7 @@
 import pandas as pd
 import numpy as np
 import pipeline as ml
+import sys
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -130,6 +131,9 @@ def clean_data(df, cohort):
 
 
 def deal_with_dummies(df, cohort):
+
+    if isinstance(df, str):
+        df = ml.read_data(df)
     
     ###################################
     ## CREATE DUMMY VARIABLE COLUMNS ##
@@ -151,6 +155,10 @@ def deal_with_dummies(df, cohort):
 
 def choose_data(df, grade):
 
+    if isinstance(df, str):
+        df = ml.read_data(df)
+
+    #Find columns to use
     all_columns = list(df.columns.values)
     cols_to_use = []
 
@@ -174,12 +182,15 @@ def choose_data(df, grade):
     dv = 'g' + str(grade) + '_dropout'
     #print cols_to_use
 
+    #Find rows to use
 
-
-    return dv, cols_to_use
+    return dv, cols_to_use, df
 
 
 def impute_data(df, cohort):
+
+    if isinstance(df, str):
+        df = ml.read_data(df)
 
     ##########################
     ## IMPUTE ACADEMIC DATA ##
@@ -292,19 +303,24 @@ if __name__ == '__main__':
 #   df = summarize_data(dataset)
 
     ## CLEAN DATA
-    df = ml.read_data(dataset)
-    print "Cleaning Cohort 1..."
-    predummy_data_cohort1 = clean_data(df, 1)
+    #df = ml.read_data(dataset)
+    #print "Cleaning Cohort 1..."
+    #predummy_data_cohort1 = clean_data(df, 1)
     
-    print "Cleaning Cohort 2..."
-    predummy_data_cohort2 = clean_data(df, 2)
+    #print "Cleaning Cohort 2..."
+    #predummy_data_cohort2 = clean_data(df, 2)
 
     #non_dummy_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort1.csv'
-    #non_dummy_cohort2 = 
-    #deal_with_dummies(non_dummy_data)
+    #non_dummy_cohort2 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort2.csv'
+    #deal_with_dummies(non_dummy_cohort1, 1)
+    #deal_with_dummies(non_dummy_cohort2, 2)
+
+    ## TRAINING DATA: CHOOSE SUBSET
+    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
+    grade = sys.argv[1]
+    df = choose_data(clean_cohort1, grade)
 
     ## TRAINING DATA: IMPUTATION
-    #clean_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv'
     #impute_data(clean_dataset, 1)
 
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
