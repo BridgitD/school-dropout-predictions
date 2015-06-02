@@ -57,7 +57,7 @@ def clean_data(df, cohort):
 
     elif cohort == 2:
         print "for cohort 2..."
-        variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
+        variables_to_drop = ['g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
         for v in variables_to_drop:
             df.drop(v, axis=1, inplace=True)
 
@@ -129,7 +129,7 @@ def clean_data(df, cohort):
     return df
 
 
-def deal_with_dummies(df):
+def deal_with_dummies(df, cohort):
     
     ###################################
     ## CREATE DUMMY VARIABLE COLUMNS ##
@@ -143,8 +143,10 @@ def deal_with_dummies(df):
         df.drop(col, axis=1, inplace=True)
 
     ## Save clean version
-    #ml.print_to_csv(df, 'data/clean_data.csv')
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data.csv')
+    return_file = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort' + str(cohort) + '.csv'
+    ml.print_to_csv(df, return_file)
+
+    return df
 
 
 def choose_data(df, grade):
@@ -297,8 +299,8 @@ if __name__ == '__main__':
     print "Cleaning Cohort 2..."
     predummy_data_cohort2 = clean_data(df, 2)
 
-    #non_dummy_data = 'data/predummy_data.csv'
-    #non_dummy_data = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data.csv'
+    #non_dummy_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/predummy_data_cohort1.csv'
+    #non_dummy_cohort2 = 
     #deal_with_dummies(non_dummy_data)
 
     ## TRAINING DATA: IMPUTATION
