@@ -372,52 +372,57 @@ def build_classifiers(df, X, y, classifiers):
 	for name, clf in classifiers:
 		print "Building " + name + '...'
 
-		print X
-
 		# Construct K-folds
 		kf = KFold(len(y), n_folds=5, shuffle=True)
-		print len(y), len(X)
 		y_pred = y.copy()
 
 		# Iterate through folds
 		for train_index, test_index in kf:
-			X_train, X_test = X[train_index], X[test_index]
-			y_train = y[train_index]
+			X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+			y_train = y.iloc[train_index]
 
 			#Initialize classifier
 			model = clf
 			model.fit(X_train, y_train)
-			y_pred[test_index] = model.predict(X_test)
+			y_pred.iloc[test_index] = model.predict(X_test)
 
-		test_classifier(df, X, y, y_pred)
+		test_classifier(df, X, y, y_pred, name)
 #		evaluate_classifier(rv, index, y, y_pred)
 		index += 1
 
 #	return rv
 
-def test_classifier(df, X, y, y_pred):
+def test_classifier(df, X, y, y_pred, name):
 	'''
 	Takes a dataframe (df), column names of predictors (X) and a dependent
 	variable (y). Loops over generic classifiers to find predictions. Creates
 	a decision tree using prediction misclassification as the dependent variable.
 	'''
+	#import IPython
+	#IPython.embed()
 
 	var_name = name + '_predict'
-	df[var_name] = y_pred[:,0]
+	try:
+		df[var_name] = y_pred
+	except:
+		import pdb
+		pdb.set_trace()
 	correct = name + '_correct'
 	
 	# Determine "correctness" based on 0.5 threshold
-	for index, row in df.iterrows():
-		if row[var_name] > 0.5:
-			df.ix[index,correct] = 1
-		else:
-			df.ix[index,correct] = 0
+	df[correct] = (df[var_name] > 0.5).astype(int)
+
+	#for index, row in df.iterrows():
+		#if row[var_name] > 0.5:
+			#df.ix[index,correct] = 1
+		##else:
+			#df.ix[index,correct] = 0
 	#print df[y]
 	#print df[correct]
 	#print summarize(df[correct])
 	#print df.groupby(df[correct]).mean()
 	tree = DecisionTreeClassifier(max_depth=5)
-	tree.fit(df[X], df[correct])
+	tree.fit(df[X.columns], df[correct])
 	get_tree_decisions(tree, df.columns)
 
 # Borrowed heavily from http://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree

@@ -12,7 +12,7 @@ import sys
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier#, GradientBoostingClassifier, BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
 #from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
@@ -193,13 +193,13 @@ def choose_data(df, grade):
     data12 = data11[data11['g11_dropout'] !=1]
 
     if grade == 9:
-        return data9[dv], data9[cols_to_use]
+        return data9, data9[dv], data9[cols_to_use]
     elif grade == 10:
-        return data10[dv], data10[cols_to_use]
+        return data10, data10[dv], data10[cols_to_use]
     elif grade == 11:
-        return data11[dv], data11[cols_to_use]
+        return data11, data11[dv], data11[cols_to_use]
     elif grade == 12:
-        return data12[dv], data12[cols_to_use]
+        return data12, data12[dv], data12[cols_to_use]
 
 
 def impute_data(df, cohort):
@@ -340,19 +340,19 @@ if __name__ == '__main__':
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
     imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
     df = ml.read_data(imputed_dataset)
-    y, X = choose_data(df, 12)
+    df, y, X = choose_data(df, 12)
 
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
     # Classifiers to test
-    classifiers = [('logistic_regression', LogisticRegression())]
-                    #('k_nearest_neighbors', KNeighborsClassifier()),
-                    #('decision_tree', DecisionTreeClassifier())]
-                    #('SVM', LinearSVC()),
-                    #('random_forest', RandomForestClassifier()),
-                    #('boosting', GradientBoostingClassifier()),
-                    #('bagging', BaggingClassifier())]
+    classifiers = [('logistic_regression', LogisticRegression()), 
+                   ('k_nearest_neighbors', KNeighborsClassifier()),
+                   ('decision_tree', DecisionTreeClassifier()),
+                   #('SVM', LinearSVC()),
+                   ('random_forest', RandomForestClassifier()),
+                   ('boosting', GradientBoostingClassifier()),
+                   ('bagging', BaggingClassifier())]
 
     ml.build_classifiers(df, X, y, classifiers)
     #ml.test_classifier(df, X, y, classifiers)
