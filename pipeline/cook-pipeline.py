@@ -172,7 +172,7 @@ def imputeMean(data):
     return data
 
 def plotROC(name, probs, test_data):
-    fpr, tpr, thresholds = roc_curve(test_data['SeriousDlqin2yrs'], probs)
+    fpr, tpr, thresholds = roc_curve(test_data['g12_dropout'], probs)
     roc_auc = auc(fpr, tpr)
     pl.clf()
     pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
