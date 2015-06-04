@@ -218,7 +218,7 @@ def main():
     data = limitRows(data, 12)
 
     #make data finite
-    data = finiteData(data, 12)
+    data = makeFinite(data, 12)
 
     # define parameters
     #names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging"]
