@@ -87,7 +87,7 @@ def makeDummies(data):
 def chooseCols(data, pred_grade):
     for x in range(pred_grade, 12):
         dropVars = [col for col in data.columns if str(x) in col]
-        dropoutVar = 'g' + str(pred_grade) + '_dropout'
+        dropoutVar = 'g' + str(x) + '_dropout'
         dropVars.remove(dropoutVar)
         data.drop(dropVars, axis=1, inplace=True)
 
@@ -117,16 +117,9 @@ def imputeData(data):
 def limitRows(data, pred_grade):
     #get rid of previous dropouts
     for x in range(6, pred_grade-1):
-        data = data[data.g6_dropout !=1]
-        data = data[data.g7_dropout !=1]
-        data = data[data.g8_dropout !=1]
-        data = data[data.g9_dropout !=1]
-        if pred_grade > 9:
-            data = data[data.g10_dropout !=1]
-            if pred_grade > 10:
-                data = data[data.g11_dropout !=1]
-                if pred_grade > 11:
-                    data = data[data.g12_dropout !=1]
+        doVar = 'g' + str(x) + '_dropout'
+        data = data[data.doVar !=1]
+
 
     #get rid of people missing in previous yr
     #mVar = 'g' + str(pred_grade-1) + '_missing'
