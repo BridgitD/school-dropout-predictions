@@ -101,16 +101,16 @@ def imputeData(data):
         nacol = nanList[x]
         colList = msamList[x]
         for col in colList:
-            df.loc[df[nacol] == 1, col] = np.nan 
+            data.loc[data[nacol] == 1, col] = np.nan 
 
 
     #pred missing data using any available data
     wordList = ['absrate', 'mapr', 'msam_Advanced', 'msam_Basic', 'msam_Proficient', 'mobility', 'nsusp', 'mpa', 'tardyr', 'psatm', 'psatv', 'retained']
     for word in wordList:
-        colList = [col for col in df.columns if word in col]
-        rowMean = df[colList].mean(axis=1)
+        colList = [col for col in data.columns if word in col]
+        rowMean = data[colList].mean(axis=1)
         for col in colList:
-            df[col].fillna(rowMean, inplace=True)
+            data[col].fillna(rowMean, inplace=True)
 
     return data
 
