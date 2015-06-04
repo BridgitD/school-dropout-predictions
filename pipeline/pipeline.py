@@ -332,6 +332,7 @@ def build_classifiers(df, X, y, classifiers):
 	the given evaluation metrics.
 	'''
 	index = 0
+
 	for name, clf in classifiers:
 		print "Building " + name + '...'
 
@@ -350,7 +351,7 @@ def build_classifiers(df, X, y, classifiers):
 			y_pred.iloc[test_index] = model.predict(X_test)
 
 		test_classifier(df, X, y, y_pred, name)
-#		evaluate_classifier(rv, index, y, y_pred)
+		evaluate_classifier(name, index, y, y_pred)
 		index += 1
 
 #	return rv
@@ -361,8 +362,6 @@ def test_classifier(df, X, y, y_pred, name):
 	variable (y). Loops over generic classifiers to find predictions. Creates
 	a decision tree using prediction misclassification as the dependent variable.
 	'''
-	#import IPython
-	#IPython.embed()
 
 	var_name = name + '_predict'
 	try:
@@ -375,15 +374,7 @@ def test_classifier(df, X, y, y_pred, name):
 	# Determine "correctness" based on 0.5 threshold
 	df[correct] = (df[var_name] > 0.5).astype(int)
 
-	#for index, row in df.iterrows():
-		#if row[var_name] > 0.5:
-			#df.ix[index,correct] = 1
-		##else:
-			#df.ix[index,correct] = 0
-	#print df[y]
-	#print df[correct]
-	#print summarize(df[correct])
-	#print df.groupby(df[correct]).mean()
+	# Determine which observations are being misclassified
 	tree = DecisionTreeClassifier(max_depth=5)
 	tree.fit(df[X.columns], df[correct])
 	get_tree_decisions(tree, df.columns)
@@ -410,19 +401,48 @@ def get_tree_decisions(tree, feature_names):
 
     recurse(left, right, threshold, features, 0)
 	
-def evaluate_classifier(df, index, y_real, y_predict):
+def evaluate_classifier(model, index, y_real, y_predict):
 	'''
 	For an index of a given classifier, evaluate it by various metrics
 	'''
+	
+	rv = []
+	rv.loc[index,'classifier'] = name
+
 	# Metrics to evaluate
-	metrics = [('accuracy', accuracy_score(y_real, y_predict)),
+	metrics = [('baseline', (1 - y_real.mean()))
+				('accuracy', accuracy_score(y_real, y_predict)),
 				('precision', precision_score(y_real, y_predict)),
 				('recall', recall_score(y_real, y_predict)),
 				('f1', f1_score(y_real, y_predict)),
 				('area_under_curve', roc_auc_score(y_real, y_predict))]
 
 	for name, m in metrics:
-		df.loc[index, name] = m
+		rv.loc[index, name] = m
+
+	print_to_csv(rv, 'compare_classifiers.csv')
+	plot_precision_recall_curve(y_real, y_predict, model)
+
+
+
+def plot_precision_recall_curve(y_real, y_predict, model):
+	# Compute Precision-Recall and plot curve
+	precision, recall, thresholds = precision_recall_curve(y_test, y_score[:, 1])
+	area = auc(recall, precision)
+	print "Area Under Curve: %0.2f" % area
+
+	pl.clf()
+	pl.plot(recall, precision, label='Precision-Recall curve')
+	pl.xlabel('Recall')
+	pl.ylabel('Precision')
+	pl.ylim([0.0, 1.05])
+	pl.xlim([0.0, 1.0])
+	pl.title('Precision-Recall example: AUC=%0.2f' % area)
+	pl.legend(loc="lower left")
+
+	plt.draw()
+	plt.savefig("output/evaluation/"+model+"_precision-recall-curve"+".jpg")
+	plt.clf()
 
 
 # -------------------------------------------------------------------------

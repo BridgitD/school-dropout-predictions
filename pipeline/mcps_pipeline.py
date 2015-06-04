@@ -238,6 +238,19 @@ def impute_data(df):
     print "Done!"
     return df
 
+def fit_models(df, X, y):
+   # Classifiers to test
+    classifiers = [('logistic_regression', LogisticRegression())] 
+                   #('k_nearest_neighbors', KNeighborsClassifier()),
+                   #('decision_tree', DecisionTreeClassifier()),
+                   #('SVM', LinearSVC()),
+                   #('random_forest', RandomForestClassifier()),
+                   #('boosting', GradientBoostingClassifier()),
+                   #('bagging', BaggingClassifier())]
+
+    ml.build_classifiers(df, X, y, classifiers)
+    #ml.test_classifier(df, X, y, classifiers)
+ 
 
 #-------------------------------------------------------
 
@@ -280,17 +293,7 @@ if __name__ == '__main__':
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
-    # Classifiers to test
-    classifiers = [('logistic_regression', LogisticRegression()), 
-                   ('k_nearest_neighbors', KNeighborsClassifier()),
-                   ('decision_tree', DecisionTreeClassifier()),
-                   #('SVM', LinearSVC()),
-                   ('random_forest', RandomForestClassifier()),
-                   ('boosting', GradientBoostingClassifier()),
-                   ('bagging', BaggingClassifier())]
-
-    ml.build_classifiers(df, X, y, classifiers)
-    #ml.test_classifier(df, X, y, classifiers)
+    fit_models(df, X, y)
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'
