@@ -192,7 +192,7 @@ def main():
     #shrink dataset size
     data = chooseCols(data, 12)
 
-    #impute data
+    #impute data 
     data = imputeData(data)
 
     #limit rows to valid
