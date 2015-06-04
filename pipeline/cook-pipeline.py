@@ -191,9 +191,9 @@ def evaluateClassifier(name, y_true, y_pred, probs, test_data):
     recall = recall_score(y_true, y_pred)
     f1 = f1_score(y_true, y_pred)
     # ROC curve, AUC on fig
-    #plot_roc("Perfect Classifier", test_data['SeriousDlqin2yrs'], test_data)
-    #plot_roc("Guessing", np.random.uniform(0, 1, len(test_data['SeriousDlqin2yrs'])), test_data)
-    #plotROC(name, probs, test_data)
+    plot_roc("Perfect Classifier", test_data['g12_dropout'], test_data)
+    plot_roc("Guessing", np.random.uniform(0, 1, len(test_data['g12_dropout'])), test_data)
+    plotROC(name, probs, test_data)
     return precision, recall, f1
 
 
@@ -225,7 +225,7 @@ def main():
     classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier()]
 
     # split data
-    for x in range(0,2):
+    for x in range(0,5):
         print "\nFold: " + str(x)
 
         train_data, test_data = train_test_split(data, test_size=.2)
