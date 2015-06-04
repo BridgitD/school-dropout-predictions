@@ -235,11 +235,11 @@ def main():
 
         # define Xs, Y
         colList = data.columns.tolist()
-        colList.remove(doVar)
+        colList.remove('g12_dropout')
         X_train = train_data.loc[:,colList]
-        y_train = train_data.loc[:,doVar]
+        y_train = train_data.loc[:,'g12_dropout']
         X_test = test_data.loc[:,colList]
-        y_test = test_data.loc[:,doVar]
+        y_test = test_data.loc[:,'g12_dropout']
 
         clf_results = {}
 
