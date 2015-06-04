@@ -181,7 +181,7 @@ def evaluateClassifier(name, y_true, y_pred, probs, test_data):
 
 def main():
     #read data
-    data = pd.read_csv('DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv', index_col=False)
+    data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv', index_col=False)
 
     #clean data
     data = cleanData(data, 1)
