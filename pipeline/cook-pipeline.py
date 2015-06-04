@@ -187,7 +187,7 @@ def plotROC(name, probs, test_data):
 
 def evaluateClassifier(name, y_true, y_pred, probs, test_data):
     # precision, recall, F1 scores, accuracy
-    precision = precision_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred) 
     recall = recall_score(y_true, y_pred)
     f1 = f1_score(y_true, y_pred)
     # ROC curve, AUC on fig
