@@ -138,7 +138,7 @@ def deal_with_dummies(df, cohort):
     return df
 
 
-def choose_data(df, grade):
+def choose_columns(df, grade):
     print "Choosing data..."
 
     if isinstance(df, str):
@@ -168,6 +168,10 @@ def choose_data(df, grade):
 
     y = 'g' + str(grade) + '_dropout'
 
+    return cols_to_use, y
+
+def choose_rows(df, grade):
+
     #Find rows to use
     print "Choosing rows..."
     data9 = df[df['g6_dropout'] !=1]
@@ -179,19 +183,17 @@ def choose_data(df, grade):
 
     if grade == 9:
         data9 = data9[data9['g8_missing'] !=1]
-        return data9[cols_to_use], data9[y]
+        return data9
     elif grade == 10:
         data10 = data10[data10['g9_missing'] !=1]
-        return data10[cols_to_use], data10[y]
+        return data10
     elif grade == 11:
         data11 = data11[data11['g10_missing'] !=1]
-        return data11[cols_to_use], data11[y]
+        return data11
     elif grade == 12:
         data12 = data12[data12['g11_missing'] !=1]
         ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/subset_test.csv')
-        return data12[cols_to_use], data12[y]
-
-    ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/subset_test.csv')
+        return data12
 
 def impute_data(df, cohort):
 
@@ -222,7 +224,9 @@ def impute_data(df, cohort):
         colList = [col for col in df.columns if word in col]
         rowMean = df[colList].mean(axis=1)
         for col in colList:
-            df[col].fillna(rowMean, inplace=True)
+            print df[col].value_counts(dropna=False)
+            df.loc[:,col].fillna(rowMean, inplace=True)
+            print df[col].value_counts(dropna=False)
 
 
     '''
@@ -248,6 +252,8 @@ def impute_data(df, cohort):
     #IPython.embed()
 
     print "Done!"
+    import IPython
+    IPython.embed()
     return df
 
 def fit_models(df, X, y):
@@ -269,11 +275,11 @@ def fit_models(df, X, y):
 if __name__ == '__main__':
 
     ## ORIGINAL DATASETS
-    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+#    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
 #    test = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
 
     ## LOAD DATA
-    df = ml.read_data(dataset)
+#    df = ml.read_data(dataset)
 #    test = ml.read_data(test)
 
     ## RUN SUMMARY STATISTICS
@@ -281,23 +287,30 @@ if __name__ == '__main__':
 #    summarize_data(test)
 
     ## CLEAN DATA
-    print "Cleaning Cohort 1..."
-    predummy_cohort1 = clean_data(df, 1)
+#    print "Cleaning Cohort 1..."
+#    predummy_cohort1 = clean_data(df, 1)
     
 #    print "Cleaning Cohort 2..."
 #    predummy_cohort2 = clean_data(test, 2)
 
-    clean_cohort1 = deal_with_dummies(predummy_cohort1, 1)
+#    clean_cohort1 = deal_with_dummies(predummy_cohort1, 1)
 #    clean_cohort2 = deal_with_dummies(predummy_cohort2, 2)
 
     ## TRAINING DATA: CHOOSE SUBSET
-#    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
-    X, y = choose_data(clean_cohort1, 12)
- 
+    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
+    df = ml.read_data(clean_cohort1)
+    cols_to_use, y = choose_columns(df, 12)
+    rows = choose_rows(df, 12)
+
+#    X = df[cols_to_use]
+#    y = df[y]
+    #import IPython
+    #IPython.embed() 
     ## TRAINING DATA: IMPUTATION
 #    subset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
-    X = impute_data(X, 1)
+    X = impute_data(rows[cols_to_use], 1)
 
+    #IPython.embed()
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
 #    imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
 #    df = ml.read_data(imputed_dataset)
@@ -306,8 +319,8 @@ if __name__ == '__main__':
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
-    df = X.copy()
-    fit_models(df, X, y)
+    copy_df = X.copy()
+    fit_models(copy_df, X, df[y])
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'
