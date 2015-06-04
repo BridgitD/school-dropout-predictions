@@ -261,3 +261,5 @@ def main():
             w.writerow(clf_results)
     
     print "End"
+
+main()
