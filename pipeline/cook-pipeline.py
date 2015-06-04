@@ -27,30 +27,34 @@ def getSumStats(data):
 
 def cleanData(data, cohort):
     if cohort == 1:
-        variables_to_drop = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
-        data.drop(variables_to_drop, axis=1, inplace=True)
+        dropList = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
+        data.drop(dropList, axis=1, inplace=True)
         
     elif cohort == 2:
-        variables_to_drop = ['g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
-        data.drop(variables_to_drop, axis=1, inplace=True)
+        dropList = ['g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
+        data.drop(dropList, axis=1, inplace=True)
 
-    ## Create single column for birth year
-    data['birthday'] = data['g11_byrmm']
-    birthday_cols = ['g12_byrmm', 'g10_byrmm', 'g9_byrmm', 'g8_byrmm', 'g7_byrmm', 'g6_byrmm']
-    for c in birthday_cols:
-        ml.replace_if_missing(data, 'birthday', c)
-        data.drop(c, axis=1, inplace=True)
+    ##clean birth year/mo
+    data.loc[:, 'g11_byrmm']= data.loc[:,'g11_byrmm'].astype(str)
+    data.loc[:, 'birth_year'] = data['g11_byrmm'].str[0:4]
+    data.loc[:, 'birth_mo'] = data['g11_byrmm'].str[4:6]
+
+    birthday_cols = ['g11_byrmm', 'g12_byrmm', 'g10_byrmm', 'g9_byrmm', 'g8_byrmm', 'g7_byrmm', 'g6_byrmm']
+    for col in birthday_cols:
+        data.loc[:, col]= data.loc[:,col].astype(str)
+        data['birth_year'].fillna(data[col].str[0:4], inplace=True)
+        data['birth_mo'].fillna(data[col].str[4:6], inplace=True)
+
+    data.drop(birthday_cols, axis=1, inplace=True)
     
-    data['birth_year'] = data.loc[:,'birthday'].astype(str, copy=False)[:4]
-    data['birth_month'] = data.loc[:,'birthday'].astype(str, copy=False)[4:]
-    data.drop('birthday', axis=1, inplace=True)
 
-    ## Create single column for gender
+    #clean gender
     data['gender'] = data['g11_gender']
     gender_cols = ['g12_gender', 'g11_gender', 'g10_gender', 'g9_gender', 'g8_gender', 'g7_gender', 'g6_gender']
-    for c in gender_cols:
-        ml.replace_if_missing(data, 'gender', c)
-        data.drop(c, axis=1, inplace=True)
+    for col in gender_cols:
+        data['gender'] = data['gender'].fillna(data[col], inplace=True)
+    
+    data.drop(gender_cols, axis=1, inplace=True)
 
     #clean retained
     retained_cols = ['g11_retained', 'g12_retained', 'g9_newmcps', 'g10_newmcps', 'g11_newmcps', 'g12_newmcps', 'g9_newus', 'g10_newus', 'g11_newus', 'g12_newus']
