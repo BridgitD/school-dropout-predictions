@@ -57,6 +57,15 @@ def line_count(dataset):
 
 ## STEP 2: EXPLORE DATA - generate distributions and data summaries
 
+def getSumStats(data):
+    desc = data.iloc[:,1:].describe().T
+    desc.drop([desc.columns[4], desc.columns[6]], axis=1, inplace=True)
+    mode = data.iloc[:,1:].mode()
+    desc = pd.concat([desc.T, mode])
+    desc.rename({0:'mode', '50%':'median'}, inplace=True)
+    desc.to_csv("ml_sumstats.csv")
+
+
 def summarize(df):
 	'''
 	Given a dataframe and the original filename, this outputs a CSV with an adjusted filename.
@@ -84,11 +93,7 @@ def print_to_csv(df, filename):
 
 	df.to_csv(filename)
 
-def histogram1(variable, dataset, color, bins):
-
-	#Define Data
-	data = pd.read_csv(dataset, index_col=0, low_memory=False)
-	data.columns = [camel_to_snake(col) for col in data.columns]
+def histogram1(variable, data, color, bins):
 
 	#Generate Graph
 	fig = data[variable].hist(bins=bins, color=color)
@@ -100,11 +105,7 @@ def histogram1(variable, dataset, color, bins):
 	plt.clf()
 
 
-def histogram2(variable, dataset, color, np1, np2):
-
-	#Define Data
-	data = pd.read_csv(dataset, index_col=0, low_memory=False)
-	data.columns = [camel_to_snake(col) for col in data.columns]
+def histogram2(variable, data, color, np1, np2):
 
 	#Generate Graph
 	fig = data[variable].hist(bins=np.arange(np1, np2), color=color)
@@ -116,48 +117,41 @@ def histogram2(variable, dataset, color, np1, np2):
 	plt.clf()
 
 
-def summarize_dataset(dataset):
+def summarize_dataset(df):
 	"""Select dataset to summarize. Use this function to summarize a dataset.
 	To focus on specific variables, please use summary_statistics instead."""
 
 	#Define Data
-	data = pd.read_csv(dataset, index_col=0, low_memory=False)
-	data.columns = [camel_to_snake(col) for col in data.columns]
+	df.columns = [camel_to_snake(col) for col in df.columns]
 
-	for variable in data.columns:
+	for variable in df.columns:
 
 		print "_"*50
 		print "Summary Statistics "+str(variable)+": "
-		count = (data[str(variable)].count())
-		Number_variable_lines = line_count(dataset)-1
-		print "Missing values: ", (Number_variable_lines - count)
-		print "Describe "+str(variable)+": ", '\n', (data[str(variable)].describe())
-		print "Mode: ", (data[str(variable)].mode())
+		count = (df[str(variable)].count())
+		print "Missing values: ", df.count().max() - df.describe().T['count']
+		print "Describe "+str(variable)+": ", '\n', (df[str(variable)].describe())
+		print "Mode: ", (df[str(variable)].mode())
 		#Histogram
 		if count > 1:
 			try:
-				histogram1(str(variable), dataset, 'c', 5)
-				histogram1(str(variable), dataset, 'g', 10)
-				histogram2(str(variable), dataset, 'b', 1.5, 10)
-				histogram2(str(variable), dataset, 'r', 1, 10)
+				histogram1(str(variable), df, 'c', 5)
+				histogram1(str(variable), df, 'g', 10)
+				histogram2(str(variable), df, 'b', 1.5, 10)
+				histogram2(str(variable), df, 'r', 1, 10)
 			except:
 				pass
 
 
 
-def summary_statistics(variable, dataset, bin1=5, bin2=10):
+def summary_statistics(variable, data, bin1=5, bin2=10):
 	"""Select variable to summarize. Please input the dataset.
 		Histogram bins can be modified. Default is 5 and 10."""
-
-	#Define Data
-	data = pd.read_csv(dataset, index_col=0, low_memory=False)
-	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	print "_"*50
 	print "Summary Statistics "+str(variable)+": "
 	count = (data[str(variable)].count())
-	Number_variable_lines = line_count(dataset)-1
-	print "Missing values: ", (Number_variable_lines - count)
+	print "Missing values: ", data.count().max() - data.describe().T['count']
 	print "Describe "+str(variable)+": ", '\n', (data[str(variable)].describe())
 	print "Mode: ", (data[str(variable)].mode())
 	#Histogram
@@ -170,27 +164,6 @@ def summary_statistics(variable, dataset, bin1=5, bin2=10):
 	except:
 		pass
 
-
-def histogram(df, field):
-	'''Given a dataframe and a field, this creates histograms.'''
-
-	fn = 'histograms/' + field + '.png'
-
-	#Determine number of bins based on number of different values
-	unique_vals = len(df[field].value_counts())
-	if unique_vals == 2:
-		df.groupby(field).size().plot(kind='bar')
-	elif unique_vals < 15:
-		bins = unique_vals	
-		df[field].hist(xlabelsize=10, ylabelsize=10, bins=unique_vals)
-	else:
-		df[field].hist()
-
-	pylab.title("Distribution of {0}".format(field))
-	pylab.xlabel(field)
-	pylab.ylabel("Counts")
-	pylab.savefig(fn)
-	pylab.close()
 
 # ---------------------------------------------------------------------
 
@@ -231,7 +204,7 @@ def replace_with_mean(df, variables):
 			if pd.isnull(row[field]):
 				df.ix[index, field] = mean
 
-def replace_with_other_col(df, variable_missing, variable_fill):
+def replace_if_missing(df, variable_missing, variable_fill):
 	'''
 	Takes a variable and replaces missing values (variable_missing) with
 	data from another column (variable_fill).
@@ -346,16 +319,6 @@ def bin_variable(df, variable, num_bins, labels=None):
 	new_label = variable + '_bins'
 	df[new_label] = pd.cut(df[variable], bins=num_bins, labels=labels)
 
-def get_dummys(df, cols, **kwargs):
-	'''Creates binary variable from specified column(s)'''
-	# Loop through each variable
-	for variable in cols:
-		dummy_data = pd.get_dummies(df[variable], prefix=variable, **kwargs)
-		
-		# Add new data to dataframe
-		df = pd.concat([df, dummy_data], axis=1)
-	return df
-
 
 # ---------------------------------------------------------------------
 
@@ -428,24 +391,24 @@ def test_classifier(df, X, y, y_pred, name):
 # Borrowed heavily from http://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree
 def get_tree_decisions(tree, feature_names):
 	left      = tree.tree_.children_left
-        right     = tree.tree_.children_right
-        threshold = tree.tree_.threshold
-        features  = [feature_names[i] for i in tree.tree_.feature]
-        value = tree.tree_.value
+    right     = tree.tree_.children_right
+    threshold = tree.tree_.threshold
+    features  = [feature_names[i] for i in tree.tree_.feature]
+    value = tree.tree_.value
 
-        def recurse(left, right, threshold, features, node):
-                if (threshold[node] != -2):
-                        print "if ( " + features[node] + " <= " + str(threshold[node]) + " ) {"
-                        if left[node] != -1:
-                                recurse (left, right, threshold, features,left[node])
-                        print "      } else {"
-                        if right[node] != -1:
-                                recurse (left, right, threshold, features,right[node])
-                        print "}"
-                else:
-                        print "return " + str(value[node])
+    def recurse(left, right, threshold, features, node):
+            if (threshold[node] != -2):
+                    print "if ( " + features[node] + " <= " + str(threshold[node]) + " ) {"
+                    if left[node] != -1:
+                            recurse (left, right, threshold, features,left[node])
+                    print "      } else {"
+                    if right[node] != -1:
+                            recurse (left, right, threshold, features,right[node])
+                    print "}"
+            else:
+                    print "return " + str(value[node])
 
-        recurse(left, right, threshold, features, 0)
+    recurse(left, right, threshold, features, 0)
 	
 def evaluate_classifier(df, index, y_real, y_predict):
 	'''
