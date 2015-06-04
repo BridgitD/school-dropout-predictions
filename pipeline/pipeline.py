@@ -333,8 +333,8 @@ def build_classifiers(df, X, y, classifiers):
 	'''
 	index = 0
 
-	import IPython
- 	IPython.embed()
+#	import IPython
+# 	IPython.embed()
 
 	for name, clf in classifiers:
 		print "Building " + name + '...'
@@ -347,6 +347,9 @@ def build_classifiers(df, X, y, classifiers):
 		for train_index, test_index in kf:
 			X_train, X_test = X.iloc[train_index], X.iloc[test_index]
 			y_train = y.iloc[train_index]
+
+			import IPython
+			IPython.embed()
 
 			#Initialize classifier
 			model = clf
