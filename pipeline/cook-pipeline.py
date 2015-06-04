@@ -118,18 +118,27 @@ def limitRows(data, pred_grade):
         data = data[data.g7_dropout !=1]
         data = data[data.g8_dropout !=1]
         data = data[data.g9_dropout !=1]
-        if pred_grade > 9:
+        if pred_grade >= 10:
             data = data[data.g10_dropout !=1]
-            if pred_grade > 10:
+            if pred_grade >= 11:
                 data = data[data.g11_dropout !=1]
-                if pred_grade > 11:
-                    data = data[data.g12_dropout !=1]
+ 
 
 
     #get rid of people missing in previous yr
     #mVar = 'g' + str(pred_grade-1) + '_missing'
     #data = data[data[mVar] !=1 ]
 
+    return data
+
+def makeFinite(data, pred_grade):
+    #keep finite
+    colList = [col for col in data.columns if 'dropout' in col]
+    doVar = 'g' + str(pred_grade) + '_dropout'
+    colList.remove(doVar)
+    data.drop('id', axis=1, inplace=True)
+    data.drop(colList, axis=1, inplace=True)
+    data = data.dropna(axis=0)
     return data
 
 def makeChartDiscrete(data, col, title):
@@ -182,9 +191,9 @@ def evaluateClassifier(name, y_true, y_pred, probs, test_data):
     recall = recall_score(y_true, y_pred)
     f1 = f1_score(y_true, y_pred)
     # ROC curve, AUC on fig
-    plot_roc("Perfect Classifier", test_data['SeriousDlqin2yrs'], test_data)
-    plot_roc("Guessing", np.random.uniform(0, 1, len(test_data['SeriousDlqin2yrs'])), test_data)
-    plotROC(name, probs, test_data)
+    #plot_roc("Perfect Classifier", test_data['SeriousDlqin2yrs'], test_data)
+    #plot_roc("Guessing", np.random.uniform(0, 1, len(test_data['SeriousDlqin2yrs'])), test_data)
+    #plotROC(name, probs, test_data)
     return precision, recall, f1
 
 
@@ -208,6 +217,9 @@ def main():
     #limit rows to valid
     data = limitRows(data, 12)
 
+    #make data finite
+    data = finiteData(data, 12)
+
     # define parameters
     #names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging"]
     #classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier()]
@@ -222,10 +234,12 @@ def main():
         train_data, test_data = train_test_split(data, test_size=.2)
 
         # define Xs, Y
-        X_train = train_data.iloc[:,2:]
-        y_train = train_data.iloc[:,1]
-        X_test = test_data.iloc[:,2:]
-        y_test = test_data.iloc[:,1]
+        colList = data.columns.tolist()
+        colList.remove(doVar)
+        X_train = train_data.loc[:,colList]
+        y_train = train_data.loc[:,doVar]
+        X_test = test_data.loc[:,colList]
+        y_test = test_data.loc[:,doVar]
 
         clf_results = {}
 
