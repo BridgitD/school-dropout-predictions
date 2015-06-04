@@ -191,9 +191,9 @@ def evaluateClassifier(name, y_true, y_pred, probs, test_data):
     recall = recall_score(y_true, y_pred)
     f1 = f1_score(y_true, y_pred)
     # ROC curve, AUC on fig
-    plotROC("Perfect Classifier", test_data['g12_dropout'], test_data)
-    plotROC("Guessing", np.random.uniform(0, 1, len(test_data['g12_dropout'])), test_data)
-    plotROC(name, probs, test_data)
+    #plotROC("Perfect Classifier", test_data['g12_dropout'], test_data)
+    #plotROC("Guessing", np.random.uniform(0, 1, len(test_data['g12_dropout'])), test_data)
+    #plotROC(name, probs, test_data)
     return precision, recall, f1
 
 
