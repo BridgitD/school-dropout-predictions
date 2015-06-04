@@ -77,7 +77,7 @@ def plot_precision_recall_curve(y_test, y_score, model):
 def evalualte_base_split(dataset, DV, model):
 	start = time.time()
 	# Load Data to Pandas
-	data = pd.read_csv(dataset, index_col=0)
+	data = pd.read_csv(dataset, index_col=0, axis=1, inplace=True)
 	data.columns = [camel_to_snake(col) for col in data.columns]
 
 	if model == 'logit':
@@ -107,12 +107,16 @@ def evalualte_base_split(dataset, DV, model):
 
 
 
+
+
 def evalualte_K_fold(dataset, DV, model, sets):
 	start = time.time()
 
 	# Load Data to Pandas
 	data = pd.read_csv(dataset, index_col=0)
+	#data = data.drop(drop_list, axis=1)
 	data.columns = [camel_to_snake(col) for col in data.columns]
+
 
 	#Metrics
 	metrics = ['accuracy', 'average_precision', 'precision', 'recall', 'f1', 'roc_auc']
@@ -206,13 +210,21 @@ def evalualte_K_fold(dataset, DV, model, sets):
 # Unhash to test
 classifiers = ['logit', 'd_tree', 'random_forest', 'random_forest_bagging', 'random_forest_boosting', 'gradient_boosting', 'KNN', 'svc']
 
+#droplist = ['dropout', 'g6_dropout', 'g7_dropout', 'g8_dropout', 'g9_dropout', 'g10_dropout', 'g11_dropout']
+
+#evalualte_K_fold('data/imputed_data.csv', 'g12_dropout', 'd_tree', 5, droplist)
 
 # Five-Fold Cross Validation
 def EVAL():
 
+	print "__"*25, '\n', "Grade 12 Dropout Using Only Grade 11", '\n', "__"*25
 	for clf in classifiers:
 		print "__"*50, "\n"
-		evalualte_K_fold('data/imputed_data.csv', 'g12_dropout', clf, 5)
+		evalualte_K_fold('data/g11g12onlyimputed_data.csv', 'g12_dropout', clf, 5)
+	print "__"*25, '\n', "Grade 12 Dropout Using Grades 6-12", '\n', "__"*25
+	for clf in classifiers:
 		print "__"*50, "\n"
+		evalualte_K_fold('data/g12imputed_data.csv', 'g12_dropout', clf, 5)
+
 
 EVAL()
