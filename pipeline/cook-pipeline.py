@@ -76,19 +76,16 @@ def makeDummies(data):
     school_ids = [col for col in data.columns if 'school_id' in col]
     data[school_ids] = data.loc[:,school_ids].astype(str, copy=False)
 
-    string_cols = list(data.select_dtypes(include=['object']))
-    
-    data = pd.get_dummies(data[string_cols], dummy_na=True)
-    
-    data.drop(list(data.select_dtypes(include=['object'])), axis=1, inplace=True)
+    data = pd.get_dummies(data, dummy_na=True)
 
     return data
 
 def chooseCols(data, pred_grade):
-    for x in range(pred_grade, 12):
+    for x in range(pred_grade, 13):
         dropVars = [col for col in data.columns if str(x) in col]
         dropoutVar = 'g' + str(x) + '_dropout'
-        dropVars.remove(dropoutVar)
+        if dropoutVar in dropVars:
+            dropVars.remove(dropoutVar)
         data.drop(dropVars, axis=1, inplace=True)
 
     return data
