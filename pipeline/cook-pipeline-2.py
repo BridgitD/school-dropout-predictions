@@ -233,8 +233,8 @@ def run_cv(x, y, clf_class, *args, **kwargs):
         # Initialize a classifier with key word arguments
         clf = clf_class(**kwargs)
         clf.fit(x_train,y_train)
-        y_pred[test_index] = clf.predict(x_test)
-        y_pred_proba[test_index] = clf.predict_proba(x_test)
+        y_pred.ix[test_index] = clf.predict(x_test)
+        y_pred_proba.ix[test_index] = clf.predict_proba(x_test)
     return y_pred, y_pred_proba
 
 def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_pred_proba):
