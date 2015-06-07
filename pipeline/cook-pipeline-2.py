@@ -340,6 +340,8 @@ def main():
     #run clf
     inputs = []
     for i, j in classifiers.iteritems():
+        print i
+        print j
         inputs.append((i, j, x_data, y_data, evals))
 
     clf_and_evals(inputs)
