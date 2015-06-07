@@ -281,7 +281,7 @@ def main():
     data = limitRows(data, 12)
 
     #make data finite
-    data = makeFinite(data, 12)
+    data = makeFinite(data, 12) 
     
     #define features
     features = data.columns.tolist()
