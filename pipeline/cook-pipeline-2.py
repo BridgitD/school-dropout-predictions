@@ -253,7 +253,7 @@ def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_
     f.close()
 
 def clf_and_evals(list_of_inputs):
-    print list_of_inputs
+    print len(list_of_inputs)
     classifer_name = list_of_inputs[0]
     classifier_class = list_of_inputs[1]
     x_data = list_of_inputs[2]
