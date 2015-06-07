@@ -3,22 +3,27 @@ Christine Cook
 Machine Learning
 '''
 
-import pandas as pd 
-import numpy as np
-import pylab as pl 
-import csv, time
-
-from sklearn.cross_validation import train_test_split
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
-from sklearn.metrics import roc_curve, auc, accuracy_score, precision_score, f1_score, recall_score, precision_recall_curve
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn import tree, datasets, linear_model
-from sklearn.svm import LinearSVC
-from sklearn.tree import DecisionTreeClassifier  
-from multiprocessing import Pool
-from multiprocessing.dummy import Pool as ThreadPool
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np 
+import re
+import random
 from sklearn.cross_validation import KFold
 from sklearn.preprocessing import Imputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier 
+from sklearn.ensemble import AdaBoostClassifier 
+from sklearn.ensemble import BaggingClassifier
+from sklearn.metrics import accuracy_score, precision_score
+from sklearn.metrics import recall_score, precision_recall_curve
+from sklearn.metrics import roc_auc_score, f1_score
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
+import time
 
 
 def getSumStats(data):
