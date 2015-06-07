@@ -320,7 +320,7 @@ def main():
         classifiers['BaggingClassifier']['kwords_list'] = temp
 
     classifiers['LogisticRegression']['kwords_list'] = [{'C': 1.0}]
-    classifiers['LSVC']['kwords_list'] = [{'C': 1.0}]
+    #classifiers['LSVC']['kwords_list'] = [{'C': 1.0}]
     
     #define x, y
     x_data = train[features]
