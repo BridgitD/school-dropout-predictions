@@ -291,7 +291,7 @@ def main():
     data = makeFinite(data, 12) 
 
     data.isnull().sum()
-    Embed()
+    embed()
     
     #define features
     features = data.columns.tolist()
