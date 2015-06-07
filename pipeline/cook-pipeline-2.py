@@ -291,7 +291,8 @@ def main():
     features.remove('g12_dropout')
     
     #define classifiers
-    classifiers =   {#'LogisticRegression': {'class': LogisticRegression}, 
+    classifiers =   {
+                    #'LogisticRegression': {'class': LogisticRegression}, 
                     #'KNeighborsClassifier': {'class': KNeighborsClassifier}, 
                     'DecisionTreeClassifier': {'class': DecisionTreeClassifier}} 
                     #'LinearSVC': {'class': LinearSVC}, 
@@ -340,9 +341,7 @@ def main():
     #run clf
     inputs = []
     for i, j in classifiers.iteritems():
-        print i
-        print j
-        inputs.append((i, j, x_data, y_data, evals))
+        inputs.append(i, j, x_data, y_data, evals)
 
     clf_and_evals(inputs)
 
