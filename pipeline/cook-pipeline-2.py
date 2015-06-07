@@ -300,7 +300,12 @@ def main():
                     #'BaggingClassifier': {'class': BaggingClassifier}}
 
     #define eval metrics
-    evals = {'accuracy_score': accuracy_score, 'precision_score': precision_score, 'recall_score': recall_score, 'f1_score': f1_score, 'roc_auc_score': roc_auc_score, 'precision_recall_curve': precision_recall_curve}
+    evals = {'accuracy_score': accuracy_score, 
+            'precision_score': precision_score, 
+            'recall_score': recall_score, 
+            'f1_score': f1_score, 
+            'roc_auc_score': roc_auc_score, 
+            'precision_recall_curve': precision_recall_curve}
     
     #Creating lists to loop over for parameters
     #for i in range(10):
