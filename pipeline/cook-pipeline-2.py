@@ -54,6 +54,8 @@ def cleanData(data, cohort):
         data['birth_year'].fillna(data[col].str[0:4], inplace=True)
         data['birth_mo'].fillna(data[col].str[4:6], inplace=True)
 
+    data.drop('id', axis=1, inplace=True)
+
     data.drop(birthday_cols, axis=1, inplace=True)
     
 
@@ -90,12 +92,19 @@ def makeDummies(data):
     return data
 
 def chooseCols(data, pred_grade):
+    #drop 'future' vars
     for x in range(pred_grade, 13):
         dropVars = [col for col in data.columns if str(x) in col]
         dropoutVar = 'g' + str(x) + '_dropout'
         if dropoutVar in dropVars:
             dropVars.remove(dropoutVar)
         data.drop(dropVars, axis=1, inplace=True)
+
+    #drop irrelevent d/o vars
+    colList = [col for col in data.columns if 'dropout' in col]
+    doVar = 'g' + str(pred_grade) + '_dropout'
+    colList.remove(doVar)
+    data.drop(colList, axis=1, inplace=True)
 
     return data
 
@@ -131,12 +140,6 @@ def limitRows(data, pred_grade):
             data = data[data.g10_dropout !=1]
             if pred_grade >= 11:
                 data = data[data.g11_dropout !=1]
- 
-
-
-    #get rid of people missing in previous yr
-    #mVar = 'g' + str(pred_grade-1) + '_missing'
-    #data = data[data[mVar] !=1 ]
 
     return data
 
@@ -145,7 +148,6 @@ def makeFinite(data, pred_grade):
     colList = [col for col in data.columns if 'dropout' in col]
     doVar = 'g' + str(pred_grade) + '_dropout'
     colList.remove(doVar)
-    data.drop('id', axis=1, inplace=True)
     data.drop(colList, axis=1, inplace=True)
     data = data.dropna(axis=0)
     return data
@@ -234,6 +236,7 @@ def run_cv(x, y, clf_class, *args, **kwargs):
         clf.fit(x_train,y_train)
         y_pred[test_index] = clf.predict(x_test)
         y_pred_proba[test_index] = clf.predict_proba(x_test)
+
     return y_pred, y_pred_proba
 
 def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_pred_proba):
@@ -268,19 +271,20 @@ def main():
     #make dummies
     data = makeDummies(data)
 
+    #limit rows to valid
+    data = limitRows(data, 12)
+
     #shrink dataset size
     data = chooseCols(data, 12)
 
     #impute data 
     data = imputeData(data)
 
-    #limit rows to valid
-    data = limitRows(data, 12)
-
     #make data finite
-    data = makeFinite(data, 12) 
+    #data = makeFinite(data, 12) 
+    data.dropna(axis=0, inplace=True)
 
-    data.isnull().sum()
+    print data.isnull().sum()
 
     #define features
     features = data.columns.tolist()
