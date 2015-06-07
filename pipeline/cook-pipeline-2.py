@@ -209,6 +209,7 @@ def clf_cv_loop(classifier, x_data, y_data):
     poss_class_y_pred = []
     poss_times = []
     for k in classifier['kwords_list']:
+        print k
         t0 = time.time()
         poss_class_y_pred.append(run_cv(x_data, y_data, classifier['class'], k))
         t1 = time.time()
@@ -298,10 +299,10 @@ def main():
     evals = {'accuracy_score': accuracy_score, 'precision_score': precision_score, 'recall_score': recall_score, 'f1_score': f1_score, 'roc_auc_score': roc_auc_score, 'precision_recall_curve': precision_recall_curve}
     
     #Creating lists to loop over for parameters
-    for i in range(10):
-       temp = classifiers['KNeighborsClassifier'].get('kwords_list', [])
-       temp.append({'n_neighbors': i})
-       classifiers['KNeighborsClassifier']['kwords_list'] = temp
+    #for i in range(10):
+       #temp = classifiers['KNeighborsClassifier'].get('kwords_list', [])
+       #temp.append({'n_neighbors': i})
+       #classifiers['KNeighborsClassifier']['kwords_list'] = temp
     for i in range(1,6,1):
         temp = classifiers['DecisionTreeClassifier'].get('kwords_list', [])
         temp.append({'max_depth': i})
