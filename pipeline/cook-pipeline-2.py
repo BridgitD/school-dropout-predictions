@@ -293,14 +293,14 @@ def main():
     features.remove('g12_dropout')
     
     #define classifiers
-    classifiers =   {'LogisticRegression': {'class': LogisticRegression}, 
+    classifiers =   {#'LogisticRegression': {'class': LogisticRegression}, 
                     #'KNeighborsClassifier': {'class': KNeighborsClassifier}, 
                     'DecisionTreeClassifier': {'class': DecisionTreeClassifier}, 
                     #'LinearSVC': {'class': LinearSVC}, 
                     'RandomForestClassifier': {'class': RandomForestClassifier}, 
                     'AdaBoostClassifier': {'class': AdaBoostClassifier}, 
                     'BaggingClassifier': {'class': BaggingClassifier}}
-    
+
     #define eval metrics
     evals = {'accuracy_score': accuracy_score, 'precision_score': precision_score, 'recall_score': recall_score, 'f1_score': f1_score, 'roc_auc_score': roc_auc_score, 'precision_recall_curve': precision_recall_curve}
     
@@ -326,7 +326,7 @@ def main():
         temp.append({'n_estimators': i})
         classifiers['BaggingClassifier']['kwords_list'] = temp
 
-    classifiers['LogisticRegression']['kwords_list'] = [{'C': 1.0}]
+    #classifiers['LogisticRegression']['kwords_list'] = [{'C': 1.0}]
     #classifiers['LSVC']['kwords_list'] = [{'C': 1.0}]
     
     #define x, y
