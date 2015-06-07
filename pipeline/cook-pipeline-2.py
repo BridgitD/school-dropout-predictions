@@ -229,8 +229,6 @@ def run_cv(x, y, clf_class, *args, **kwargs):
         x_train = x.ix[train_index]
         x_test  = x.ix[test_index]
         y_train = y.ix[train_index]
-        x_train = Imputer(strategy = 'median').fit_transform(x_train)
-        x_test = Imputer(strategy = 'median').fit_transform(x_test)
         # Initialize a classifier with key word arguments
         clf = clf_class(**kwargs)
         clf.fit(x_train,y_train)
@@ -291,6 +289,9 @@ def main():
 
     #make data finite
     data = makeFinite(data, 12) 
+
+    data.isnull().sum()
+    Embed()
     
     #define features
     features = data.columns.tolist()
