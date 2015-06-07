@@ -206,10 +206,10 @@ def evaluateClassifier(name, y_true, y_pred, probs, test_data):
     return precision, recall, f1
 
 def clf_cv_loop(classifier, x_data, y_data):
+    print classifier
     poss_class_y_pred = []
     poss_times = []
     for k in classifier['kwords_list']:
-        print k
         t0 = time.time()
         poss_class_y_pred.append(run_cv(x_data, y_data, classifier['class'], k))
         t1 = time.time()
