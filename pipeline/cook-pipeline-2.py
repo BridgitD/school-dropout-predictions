@@ -295,9 +295,9 @@ def main():
                     #'KNeighborsClassifier': {'class': KNeighborsClassifier}, 
                     'DecisionTreeClassifier': {'class': DecisionTreeClassifier}, 
                     #'LinearSVC': {'class': LinearSVC}, 
-                    'RandomForestClassifier': {'class': RandomForestClassifier}, 
-                    'AdaBoostClassifier': {'class': AdaBoostClassifier}, 
-                    'BaggingClassifier': {'class': BaggingClassifier}}
+                    #'RandomForestClassifier': {'class': RandomForestClassifier}, 
+                    #'AdaBoostClassifier': {'class': AdaBoostClassifier}, 
+                    #'BaggingClassifier': {'class': BaggingClassifier}}
 
     #define eval metrics
     evals = {'accuracy_score': accuracy_score, 'precision_score': precision_score, 'recall_score': recall_score, 'f1_score': f1_score, 'roc_auc_score': roc_auc_score, 'precision_recall_curve': precision_recall_curve}
@@ -311,6 +311,7 @@ def main():
         temp = classifiers['DecisionTreeClassifier'].get('kwords_list', [])
         temp.append({'max_depth': i})
         classifiers['DecisionTreeClassifier']['kwords_list'] = temp
+    '''
     for i in range(2,22,2):
         temp = classifiers['RandomForestClassifier'].get('kwords_list', [])
         temp.append({'n_estimators': i})
@@ -326,7 +327,7 @@ def main():
 
     #classifiers['LogisticRegression']['kwords_list'] = [{'C': 1.0}]
     #classifiers['LSVC']['kwords_list'] = [{'C': 1.0}]
-    
+    '''
     #define x, y
     x_data = data[features]
     y_data = data['g12_dropout']
