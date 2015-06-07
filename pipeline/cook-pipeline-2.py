@@ -326,15 +326,13 @@ def main():
     x_data = data[features]
     y_data = data['g12_dropout']
 
-    #pool and run clf
-    pool_inputs = []
+    #run clf
+    inputs = []
     for i, j in classifiers.iteritems():
-        pool_inputs.append((i, j, x_data, y_data, evals))
+        inputs.append((i, j, x_data, y_data, evals))
 
-    pool = Pool()
-    pool.map(clf_and_evals, pool_inputs)
-    pool.close()
-    pool.join()
+    clf_and_evals(inputs)
+
 
 
 
