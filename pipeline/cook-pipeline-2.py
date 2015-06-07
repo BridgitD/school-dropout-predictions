@@ -323,8 +323,8 @@ def main():
     #classifiers['LSVC']['kwords_list'] = [{'C': 1.0}]
     
     #define x, y
-    x_data = train[features]
-    y_data = train['g12_dropout']
+    x_data = data[features]
+    y_data = data['g12_dropout']
 
     #pool and run clf
     pool_inputs = []
