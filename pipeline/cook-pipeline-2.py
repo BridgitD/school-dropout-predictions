@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 import pylab as pl 
 import csv, time
-import * from __5_MCPS_Classifier
 
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
