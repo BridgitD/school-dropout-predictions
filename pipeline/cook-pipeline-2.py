@@ -258,11 +258,11 @@ def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_
 
 def clf_and_evals(list_of_inputs):
     print "clf and evals......"
-    classifer_name = list_of_inputs[0][0]
-    classifier_class = list_of_inputs[0][1]
-    x_data = list_of_inputs[0][2]
-    y_data = list_of_inputs[0][3]
-    evals = list_of_inputs[0][4]
+    classifer_name = list_of_inputs[0]
+    classifier_class = list_of_inputs[1]
+    x_data = list_of_inputs[2]
+    y_data = list_of_inputs[3]
+    evals = list_of_inputs[4]
     y_pred, poss_times, y_pred_proba = clf_cv_loop(classifier_class, x_data, y_data)
     eval_clfs(y_pred, y_data, evals, classifier_class, classifer_name, poss_times, y_pred_proba)
 
@@ -291,8 +291,7 @@ def main():
     data = makeFinite(data, 12) 
 
     data.isnull().sum()
-    embed()
-    
+
     #define features
     features = data.columns.tolist()
     features.remove('g12_dropout')
@@ -324,6 +323,7 @@ def main():
         temp = classifiers['DecisionTreeClassifier'].get('kwords_list', [])
         temp.append({'max_depth': i})
         classifiers['DecisionTreeClassifier']['kwords_list'] = temp
+
     '''
     for i in range(2,22,2):
         temp = classifiers['RandomForestClassifier'].get('kwords_list', [])
@@ -346,11 +346,8 @@ def main():
     y_data = data['g12_dropout']
 
     #run clf
-    inputs = []
     for i, j in classifiers.iteritems():
-        inputs.append((i, j, x_data, y_data, evals))
-
-    clf_and_evals(inputs)
+        clf_and_evals(i, j, x_data, y_data, evals)
 
 
 
