@@ -293,7 +293,7 @@ def main():
     #define classifiers
     classifiers =   {#'LogisticRegression': {'class': LogisticRegression}, 
                     #'KNeighborsClassifier': {'class': KNeighborsClassifier}, 
-                    'DecisionTreeClassifier': {'class': DecisionTreeClassifier}, 
+                    'DecisionTreeClassifier': {'class': DecisionTreeClassifier}} 
                     #'LinearSVC': {'class': LinearSVC}, 
                     #'RandomForestClassifier': {'class': RandomForestClassifier}, 
                     #'AdaBoostClassifier': {'class': AdaBoostClassifier}, 
