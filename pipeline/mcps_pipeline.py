@@ -15,7 +15,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
-#from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
 
 def summarize_data(dataset):
 
@@ -67,7 +67,7 @@ def clean_data(df, cohort):
     
     df['birth_year'] = df.loc[:,'birthday'].astype(str, copy=False)[:4]
     df['birth_month'] = df.loc[:,'birthday'].astype(str, copy=False)[4:]
-    df.drop('birthday')
+    df.drop('birthday', axis=1, inplace=True)
 
     ## Create single column for gender
     print "Correcting gender..."
@@ -138,7 +138,7 @@ def deal_with_dummies(df, cohort):
     return df
 
 
-def choose_data(df, grade):
+def choose_columns(df, grade):
     print "Choosing data..."
 
     if isinstance(df, str):
@@ -166,7 +166,11 @@ def choose_data(df, grade):
         if val.startswith('Unnamed'):
             cols_to_use.pop(index)
 
-    dv = 'g' + str(grade) + '_dropout'
+    y = 'g' + str(grade) + '_dropout'
+
+    return cols_to_use, y
+
+def choose_rows(df, grade):
 
     #Find rows to use
     print "Choosing rows..."
@@ -178,16 +182,23 @@ def choose_data(df, grade):
     data12 = data11[data11['g11_dropout'] !=1]
 
     if grade == 9:
-        return data9, data9[dv], data9[cols_to_use]
+        data9 = data9[data9['g8_missing'] !=1]
+        return data9
     elif grade == 10:
-        return data10, data10[dv], data10[cols_to_use]
+        data10 = data10[data10['g9_missing'] !=1]
+        return data10
     elif grade == 11:
-        return data11, data11[dv], data11[cols_to_use]
+        data11 = data11[data11['g10_missing'] !=1]
+        return data11
     elif grade == 12:
-        return data12, data12[dv], data12[cols_to_use]
+        data12 = data12[data12['g11_missing'] !=1]
+        ml.print_to_csv(df, '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/subset_test.csv')
+        return data12
 
+def impute_data(df, cohort):
 
-def impute_data(df):
+    #import IPython
+    #IPython.embed()
 
     if isinstance(df, str):
         df = ml.read_data(df)
@@ -213,7 +224,9 @@ def impute_data(df):
         colList = [col for col in df.columns if word in col]
         rowMean = df[colList].mean(axis=1)
         for col in colList:
-                df[col].fillna(rowMean, inplace=True)
+            print df[col].value_counts(dropna=False)
+            df.loc[:,col].fillna(rowMean, inplace=True)
+            print df[col].value_counts(dropna=False)
 
 
     '''
@@ -235,7 +248,12 @@ def impute_data(df):
 
     return_file = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data_cohort' + str(cohort) + '.csv'
     ml.print_to_csv(df, return_file)
+
+    #IPython.embed()
+
     print "Done!"
+    import IPython
+    IPython.embed()
     return df
 
 def fit_models(df, X, y):
@@ -257,34 +275,42 @@ def fit_models(df, X, y):
 if __name__ == '__main__':
 
     ## ORIGINAL DATASETS
-    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
-    test = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
+#    dataset = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv"
+#    test = "/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all.csv"
 
     ## LOAD DATA
-    df = ml.read_data(dataset)
-    test = ml.read_data(test)
+#    df = ml.read_data(dataset)
+#    test = ml.read_data(test)
 
     ## RUN SUMMARY STATISTICS
-    summarize_data(df)
-    summarize_data(test)
+#    summarize_data(df)
+#    summarize_data(test)
 
     ## CLEAN DATA
-    print "Cleaning Cohort 1..."
-    predummy_data_cohort1 = clean_data(df, 1)
+#    print "Cleaning Cohort 1..."
+#    predummy_cohort1 = clean_data(df, 1)
     
-    print "Cleaning Cohort 2..."
-    predummy_data_cohort2 = clean_data(test, 2)
+#    print "Cleaning Cohort 2..."
+#    predummy_cohort2 = clean_data(test, 2)
 
-    deal_with_dummies(non_dummy_cohort1, 1)
-    deal_with_dummies(non_dummy_cohort2, 2)
+#    clean_cohort1 = deal_with_dummies(predummy_cohort1, 1)
+#    clean_cohort2 = deal_with_dummies(predummy_cohort2, 2)
 
     ## TRAINING DATA: CHOOSE SUBSET
-#    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
-    df, y, X = choose_data(clean_cohort1, 12)
- 
-    ## TRAINING DATA: IMPUTATION
-    df = impute_data(df, 1)
+    clean_cohort1 = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
+    df = ml.read_data(clean_cohort1)
+    cols_to_use, y = choose_columns(df, 12)
+    rows = choose_rows(df, 12)
 
+#    X = df[cols_to_use]
+#    y = df[y]
+    #import IPython
+    #IPython.embed() 
+    ## TRAINING DATA: IMPUTATION
+#    subset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/clean_data_cohort1.csv'
+    X = impute_data(rows[cols_to_use], 1)
+
+    #IPython.embed()
     ## TRAINING DATA: START K-FOLD WITH CORRECT DATA
 #    imputed_dataset = '/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/imputed_data.csv'
 #    df = ml.read_data(imputed_dataset)
@@ -293,7 +319,8 @@ if __name__ == '__main__':
     ## TRAINING DATA: FEATURE GENERATION
 
     ## TRAINING DATA: MODEL FITTING
-    fit_models(df, X, y)
+    copy_df = X.copy()
+    fit_models(copy_df, X, df[y])
 
     ## TRAINING DATA: ID MISCLASSIFICATION
     #clean_dataset = 'data/clean_data.csv'

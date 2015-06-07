@@ -333,6 +333,9 @@ def build_classifiers(df, X, y, classifiers):
 	'''
 	index = 0
 
+#	import IPython
+# 	IPython.embed()
+
 	for name, clf in classifiers:
 		print "Building " + name + '...'
 
@@ -344,6 +347,9 @@ def build_classifiers(df, X, y, classifiers):
 		for train_index, test_index in kf:
 			X_train, X_test = X.iloc[train_index], X.iloc[test_index]
 			y_train = y.iloc[train_index]
+
+			import IPython
+			IPython.embed()
 
 			#Initialize classifier
 			model = clf
@@ -381,7 +387,7 @@ def test_classifier(df, X, y, y_pred, name):
 
 # Borrowed heavily from http://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree
 def get_tree_decisions(tree, feature_names):
-	left      = tree.tree_.children_left
+    left      = tree.tree_.children_left
     right     = tree.tree_.children_right
     threshold = tree.tree_.threshold
     features  = [feature_names[i] for i in tree.tree_.feature]
