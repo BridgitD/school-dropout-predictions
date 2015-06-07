@@ -206,7 +206,6 @@ def evaluateClassifier(name, y_true, y_pred, probs, test_data):
     return precision, recall, f1
 
 def clf_cv_loop(classifier, x_data, y_data):
-    print classifier
     poss_class_y_pred = []
     poss_times = []
     for k in classifier['kwords_list']:
@@ -227,8 +226,6 @@ def run_cv(x, y, clf_class, *args, **kwargs):
         x_train = x.ix[train_index]
         x_test  = x.ix[test_index]
         y_train = y.ix[train_index]
-        x_train = Imputer(strategy = 'median').fit_transform(x_train)
-        x_test = Imputer(strategy = 'median').fit_transform(x_test)
         # Initialize a classifier with key word arguments
         clf = clf_class(**kwargs)
         clf.fit(x_train,y_train)
@@ -256,6 +253,7 @@ def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_
     f.close()
 
 def clf_and_evals(list_of_inputs):
+    print list_of_inputs
     classifer_name = list_of_inputs[0]
     classifier_class = list_of_inputs[1]
     x_data = list_of_inputs[2]
