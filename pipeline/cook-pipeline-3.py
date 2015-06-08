@@ -204,6 +204,7 @@ def getScores(clf_results, name, clf, y_test, preds, x_test):
     clf_results[name]['precision'] = precision
     clf_results[name]['recall'] = recall
     clf_results[name]['f1'] = f1
+    print clf_results[name]
     return clf_results
 
 
@@ -259,8 +260,6 @@ def main():
 
         # evaluate classifier, add results to dict
         clf_results = getScores(clf_results, name, clf, y_test, preds, x_test)
-
-    print clf_results
 
  
     print "End"
