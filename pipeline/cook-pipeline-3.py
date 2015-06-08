@@ -3,6 +3,9 @@ Christine Cook
 Machine Learning
 
 Notes:
+display tree
+
+
 feature generation
 switch to cohort 2 testing
 '''
@@ -17,6 +20,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree, datasets, linear_model
 from sklearn.tree import DecisionTreeClassifier  
 import time
+from sklearn import tree
 from sklearn.linear_model import SGDClassifier
 
 
@@ -82,6 +86,7 @@ def cleanData(data, cohort):
     return data
 
 def makeDummies(data):
+    data = data.convert_objects(convert_numeric=True)
     data = pd.get_dummies(data, dummy_na=True)
 
     return data
@@ -147,7 +152,7 @@ def imputeConditionalMean(data, col):
     no = data[data[col] == 0].fillna(data[data[col] == 0].mean())
     full_data = pd.concat([yes, no])
 
-    return data
+    return full_data
 
 def fitClf(clf, x_train, y_train, x_test):
     train_t0 = time.time()
@@ -198,11 +203,11 @@ def findMisClf(df, X, y, y_pred, name):
     tree = DecisionTreeClassifier(max_depth=3)
     tree.fit(df[X.columns], df[correct])
     feature_names = df.columns
-    left      = tree.tree_.children_left
-    right     = tree.tree_.children_right
+    left, right = tree.tree_.children_left, tree.tree_.children_right
     threshold = tree.tree_.threshold
-    features  = [feature_names[i] for i in tree.tree_.feature]
+    features = [feature_names[i] for i in tree.tree_.feature]
     value = tree.tree_.value
+    tree.export_graphviz(tree, out_file='tree.dot', feature_names = X.columns) 
 
     def recurse(left, right, threshold, features, node):
             if (threshold[node] != -2):
@@ -216,9 +221,8 @@ def findMisClf(df, X, y, y_pred, name):
             else:
                     print "return " + str(value[node])
 
-    recurse(left, right, threshold, features, 0)
+    #recurse(left, right, threshold, features, 0)
 
-##drop birth year nan
 
 def main():
     #define constants
@@ -253,7 +257,6 @@ def main():
         train_data, test_data = train_test_split(data, test_size=.3) 
  
         #conditional mean imputation
-        #train_data = imputeConditionalMean(train_data, DV)
         for col in test_data.columns.tolist():
             test_data[col] = test_data[col].fillna(value=data[col].mean())
         for col in train_data.columns.tolist():
