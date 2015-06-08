@@ -194,7 +194,6 @@ def fitClf(clf, x_train, y_train, x_test):
     return preds, probs
 
 def getScores(clf_results, name, clf, y_test, preds, x_test):
-    embed()
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
