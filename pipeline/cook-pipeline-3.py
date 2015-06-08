@@ -212,25 +212,37 @@ def main():
     test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
 
     #prepare data for model
-    cohort=1
-    for data in [train_data, test_data]:
-        #clean data
-        data = cleanData(data, cohort)
-        #make dummies
-        data = makeDummies(data)
-        #limit rows to valid
-        data = limitRows(data, 12)
-        #shrink dataset size
-        data = chooseCols(data, 12)
-        #impute data 
-        data = imputeData(data)
-        #drop data if still missing
-        data = data[data['g12_dropout'].notnull()]
-        #mean-impute the rest
-        for col in data.columns.tolist():
-            data[col] = data[col].fillna(value=data[col].mean())
+    #clean data
+    train_data = cleanData(train_data, 1)
+    #make dummies
+    train_data = makeDummies(train_data)
+    #limit rows to valid
+    train_data = limitRows(train_data, 12)
+    #shrink dataset size
+    train_data = chooseCols(train_data, 12)
+    #impute data 
+    train_data = imputeData(train_data)
+    #drop data if still missing
+    train_data = train_data[train_data['g12_dropout'].notnull()]
+    #mean-impute the rest
+    for col in train_data.columns.tolist():
+        train_data[col] = train_data[col].fillna(value=train_data[col].mean())
 
-        cohort+=1
+    #clean data
+    test_data = cleanData(test_data, 2)
+    #make dummies
+    test_data = makeDummies(test_data)
+    #limit rows to valid
+    test_data = limitRows(test_data, 12)
+    #shrink dataset size
+    test_data = chooseCols(test_data, 12)
+    #impute data 
+    test_data = imputeData(test_data)
+    #drop data if still missing
+    test_data = test_data[test_data['g12_dropout'].notnull()]
+    #mean-impute the rest
+    for col in test_data.columns.tolist():
+        test_data[col] = test_data[col].fillna(value=test_data[col].mean())
 
 
     # define parameters
@@ -241,7 +253,7 @@ def main():
     #train_data, test_data = train_test_split(data, test_size=.2)
 
     # define xs, y
-    colList = data.columns.tolist()
+    colList = train_data.columns.tolist()
     colList.remove('g12_dropout')
     x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
     y_train, y_test = train_data.loc[:,'g12_dropout'], test_data.loc[:,'g12_dropout']
