@@ -189,6 +189,7 @@ def plotROC(name, probs, test_data):
     pl.savefig(name)
 
 def fitClf(clf, x_train, y_train, x_test):
+    print clf
     clf.fit(x_train, y_train)
     preds = pd.Series(clf.predict(x_test))
     probs = clf.predict_proba(x_test)
@@ -243,7 +244,7 @@ def main():
     classifiers = [RandomForestClassifier(max_depth=5, n_estimators=10, max_features=2)]
 
     #start k-fold
-    train_data, test_data = train_test_split(data, test_size=.3)
+    train_data, test_data = train_test_split(data, test_size=.5)
 
     # define xs, y
     colList = data.columns.tolist()
@@ -257,7 +258,6 @@ def main():
     #time training
     for name, clf in zip(names, classifiers):
         #fit clf
-        embed()
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier, add results to dict
