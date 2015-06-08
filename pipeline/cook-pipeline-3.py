@@ -44,7 +44,7 @@ def cleanData(data, cohort):
     school_ids = [col for col in data.columns if 'school_id' in col]
     school_names = [col for col in data.columns if 'school_name' in col]
     data.drop(school_ids, axis=1, inplace=True)
-    #data.drop(school_names, axis=1, inplace=True)
+    data.drop(school_names, axis=1, inplace=True)
 
     ##clean birth year/mo
     data.loc[:, 'g11_byrmm']= data.loc[:,'g11_byrmm'].astype(str)
@@ -243,8 +243,8 @@ def main():
         data[col] = data[col].fillna(value=data[col].mean())
 
     # define parameters
-    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging"]
-    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier()]
+    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression"]
+    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression()]
 
     #start k-fold
     train_data, test_data = train_test_split(data, test_size=.5)
