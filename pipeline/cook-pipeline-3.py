@@ -166,12 +166,12 @@ def fitClf(clf, x_train, y_train, x_test):
     probs = clf.predict_proba(x_test)
     return preds, probs, (train_t1-train_t0), (test_t1-test_t0)
 
-def getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time):
+def getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time):
     print name
-    precision = precision_score(y_test, preds) 
-    recall = recall_score(y_test, preds)
-    f1 = f1_score(y_test, preds)
-    accuracy = clf.score(x_test, y_test)
+    precision = precision_score(y, y_pred) 
+    recall = recall_score(y, y_pred)
+    f1 = f1_score(y, y_pred)
+    accuracy = clf.score(x, y)
     clf_results[name] = {}
     clf_results[name]['accuracy'] = accuracy
     clf_results[name]['precision'] = precision
