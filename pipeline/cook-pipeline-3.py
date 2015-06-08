@@ -201,7 +201,7 @@ def getScores(clf, y_test, preds, x_test):
     accuracy = clf.score(x_test, y_test)
     return precision, recall, f1, accuracy
 
-def addResults(name, precision, recall, f1, accuracy):
+def addResults(clf_results, name, precision, recall, f1, accuracy):
     clf_results[name] = {}
     clf_results[name]['accuracy'] = accuracy
     clf_results[name]['precision'] = precision
@@ -261,7 +261,7 @@ def main():
         precision, recall, f1, accuracy = getScores(clf, y_test, preds, x_test)
 
         # add results to dict
-        clf_results = addResults(name, precision, recall, f1, accuracy)
+        clf_results = addResults(clf_results, name, precision, recall, f1, accuracy)
 
     print clf_results
 
