@@ -263,7 +263,7 @@ def main():
     #start k-fold
     for x in range(0, 1):
         print "Split: " + str(x)
-        train_data, test_data = train_test_split(data, test_size=.2)
+        train_data, test_data = train_test_split(data, test_size=.2) 
 
         #conditional mean imputation
         #train_data = imputeConditionalMean(train_data, DV)
