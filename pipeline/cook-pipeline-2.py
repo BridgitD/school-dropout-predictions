@@ -54,7 +54,7 @@ def cleanData(data, cohort):
         data['birth_year'].fillna(data[col].str[0:4], inplace=True)
         data['birth_mo'].fillna(data[col].str[4:6], inplace=True)
 
-    data.drop('id', axis=1, inplace=True)
+    #data.drop('id', axis=1, inplace=True)
 
     data.drop(birthday_cols, axis=1, inplace=True)
     
@@ -239,27 +239,6 @@ def run_cv(x, y, clf_class, *args, **kwargs):
 
     return y_pred, y_pred_proba
 
-def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_pred_proba):
-    print "eval clfs......"
-    f = open('./output/'+classifier_name+'_evals_table.csv', 'w')
-    f.write('parameters\ttime\t')
-    for k, l in evals.iteritems():
-        f.write(k+'\t')
-    f.write('\n')
-    for k in range(len(y_pred)):
-        f.write(str(classifier['kwords_list'][k])+'\t')
-        f.write(str(poss_times[k])+'\t')
-        for l, m in evals.iteritems():
-            if l == 'precision_recall_curve':
-                eval_temp = m(y_data, y_pred_proba)
-                f.write(str(eval_temp)+'\t')
-            else:
-                eval_temp = m(y_data, y_pred[k])
-                f.write(str(eval_temp)+'\t')
-        f.write('\n')
-    f.close()
-
-
 
 def main():
     #read data
@@ -284,7 +263,7 @@ def main():
     #data = makeFinite(data, 12) 
     data.dropna(axis=0, inplace=True)
 
-    print data.isnull().sum()
+    print data.isnull().sum().tolist()
 
     #define features
     features = data.columns.tolist()
