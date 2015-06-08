@@ -188,14 +188,11 @@ def plotROC(name, probs, test_data):
 
 def fitClf(clf, x_train, y_train, x_test):
     clf.fit(x_train, y_train)
-    #time testing
     preds = clf.predict(x_test)
     probs = clf.predict_proba(x_test)
-    embed()
     return preds, probs
 
 def getScores(clf_results, name, clf, y_test, preds, x_test):
-    embed()
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
@@ -254,6 +251,7 @@ def main():
     #time training
     for name, clf in zip(names, classifiers):
         #fit clf
+        embed()
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier, add results to dict
