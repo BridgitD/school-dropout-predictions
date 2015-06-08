@@ -194,7 +194,7 @@ def fitClf(clf, x_train, y_train, x_test):
     return preds, probs
 
 
-def getScores(y_test, preds, x_test):
+def getScores(clf, y_test, preds, x_test):
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
@@ -257,7 +257,7 @@ def main():
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier
-        precision, recall, f1, accuracy = getScores(y_test, preds, x_test)
+        precision, recall, f1, accuracy = getScores(clf, y_test, preds, x_test)
 
         # add results to dict
         clf_results = addResults(name, precision, recall, f1, accuracy)
