@@ -217,8 +217,7 @@ def clf_cv_loop(classifier, x_data, y_data):
         t1 = time.time()
         total = t1-t0
         poss_times.append(total)
-        embed()
-    return poss_class_y_pred, poss_times
+    return poss_class_y_pred[0][1], poss_times, poss_class_y_pred[0][0]
 
 def run_cv(x, y, clf_class, *args, **kwargs):
     print "run cv......"
