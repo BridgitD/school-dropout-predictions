@@ -166,21 +166,21 @@ def fitClf(clf, x_train, y_train, x_test):
     probs = clf.predict_proba(x_test)
     return preds, probs, (train_t1-train_t0), (test_t1-test_t0)
 
-def getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time):
+def getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time):
     print name
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
     accuracy = clf.score(x_test, y_test)
-    clf_results[k][name] = {}
-    clf_results[k][name]['accuracy'] = accuracy
-    clf_results[k][name]['precision'] = precision
-    clf_results[k][name]['recall'] = recall
-    clf_results[k][name]['f1'] = f1
-    clf_results[k][name]['train_time'] = train_time
-    clf_results[k][name]['test_time'] = test_time
-    print clf_results[k][name]
-    return clf_results[k][name]
+    clf_results[name] = {}
+    clf_results[name]['accuracy'] = accuracy
+    clf_results[name]['precision'] = precision
+    clf_results[name]['recall'] = recall
+    clf_results[name]['f1'] = f1
+    clf_results[name]['train_time'] = train_time
+    clf_results[name]['test_time'] = test_time
+    print clf_results[name]
+    return clf_results[name]
 
 def findMisClf(df, X, y, y_pred, name):
     '''
@@ -277,8 +277,7 @@ def main():
             preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             y_pred.iloc[test_index] = clf.predict(x_test)
             y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
-            clf_results = getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time)
-            print clf_results
+            clf_results = getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time)
 
         findMisClf(data, x_test, y_test, y_pred, name)
 
