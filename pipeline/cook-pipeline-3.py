@@ -21,6 +21,7 @@ from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier  
 import time
 from sklearn.linear_model import SGDClassifier
+from sklearn.naive_bayes import GaussianNB
 
 
 def getSumStats(data):
@@ -244,8 +245,8 @@ def main():
         data[col] = data[col].fillna(value=data[col].mean())
 
     # define parameters
-    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
-    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
+    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent", "Naive Bayes"]
+    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2"), GaussianNB()]
 
     #start k-fold
     train_data, test_data = train_test_split(data, test_size=.5)
