@@ -255,31 +255,31 @@ def main():
     colList.remove(DV)
     x, y = data.loc[:,colList], data.loc[:,DV]
 
-    #start k-fold
-    kf = KFold(len(y),n_folds=5,shuffle=True)
-    y_pred = y.copy()
-    y_pred_proba = y.copy()
-    k=0
+    #loop through classifiers
+    for name, clf in zip(names, classifiers):
+        #start k-fold
+        kf = KFold(len(y),n_folds=5,shuffle=True)
+        y_pred = y.copy()
+        y_pred_proba = y.copy()
 
-    for train_index, test_index in kf:
-        x_train, x_test = x.iloc[train_index], x.iloc[test_index]
-        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        for train_index, test_index in kf:
+            x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+            y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
-        #mean imputation
-        for col in x_train.columns.tolist():
-            x_train[col] = x_train[col].fillna(value=x_train[col].mean())
-        for col in x_test.columns.tolist():
-            x_test[col] = x_test[col].fillna(value=x_test[col].mean())
+            #mean imputation
+            for col in x_train.columns.tolist():
+                x_train[col] = x_train[col].fillna(value=x_train[col].mean())
+            for col in x_test.columns.tolist():
+                x_test[col] = x_test[col].fillna(value=x_test[col].mean())
 
-        #loop through classifiers, get predictions, scores, make miss-classified tree
-        clf_results = {}
-        clf_results[k] = {}
-        for name, clf in zip(names, classifiers):
+            #get predictions, scores, make miss-classified tree
             preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             y_pred.iloc[test_index] = clf.predict(x_test)
             y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
-            clf_results[k][name] = getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time)
-        k+=1
+            clf_results = getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time)
+            print clf_results
+
+        findMisClf(data, x_test, y_test, y_pred, name)
 
     #print clf_results 
     print "End"
