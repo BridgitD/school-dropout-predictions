@@ -179,7 +179,6 @@ def getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_ti
     clf_results[name]['f1'] = f1
     clf_results[name]['train_time'] = train_time
     clf_results[name]['test_time'] = test_time
-    print clf_results[name]
     return clf_results[name]
 
 def findMisClf(df, X, y, y_pred, name):
@@ -254,6 +253,7 @@ def main():
     colList = data.columns.tolist()
     colList.remove(DV)
     x, y = data.loc[:,colList], data.loc[:,DV]
+    clf_result = {}
 
     #loop through classifiers
     for name, clf in zip(names, classifiers):
@@ -261,9 +261,9 @@ def main():
         kf = KFold(len(y),n_folds=5,shuffle=True)
         y_pred = y.copy()
         y_pred_proba = y.copy()
+        clf_results[name] = {}
 
         for train_index, test_index in kf:
-            clf_results = {}
             x_train, x_test = x.iloc[train_index], x.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
@@ -278,11 +278,11 @@ def main():
             y_pred.iloc[test_index] = clf.predict(x_test)
             y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
         
-        clf_results = getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time)
+        clf_results[name] = getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time)
 
         findMisClf(data, x, y, y_pred, name)
 
-    #print clf_results 
+    print clf_results 
     print "End"
 
 
