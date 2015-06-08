@@ -240,7 +240,7 @@ def main():
     #classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), BaggingClassifier()]
 
     names = ["Random Forest"]
-    classifiers = [RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1)]
+    classifiers = [RandomForestClassifier(max_depth=5, n_estimators=10, max_features=2)]
 
     #start k-fold
     train_data, test_data = train_test_split(data, test_size=.3)
@@ -256,7 +256,6 @@ def main():
     #loop through classifiers, get predictions, scores
     #time training
     for name, clf in zip(names, classifiers):
-        embed()
         #fit clf
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
