@@ -207,7 +207,8 @@ def findMisClf(df, X, y, y_pred, name):
     threshold = tree.tree_.threshold
     features = [feature_names[i] for i in tree.tree_.feature]
     value = tree.tree_.value
-    tree.export_graphviz(tree, out_file='tree.dot', feature_names = X.columns) 
+    clf = tree.DecisionTreeClassifier()
+    tree.export_graphviz(clf, out_file='tree.dot', feature_names = X.columns) 
 
     def recurse(left, right, threshold, features, node):
             if (threshold[node] != -2):
