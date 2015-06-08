@@ -235,7 +235,6 @@ def main():
     #clean data
     data = cleanData(data, 1)
     #make dummies
-    embed()
     data = makeDummies(data)
     #limit rows to valid
     data = limitRows(data, pred_grade)
@@ -248,8 +247,8 @@ def main():
 
 
     # define parameters
-    names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging", "Logistic Regression", "Stochastic Gradient Descent: SVM"]
-    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
+    names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
+    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="modified_huber", penalty="l2")]
 
     #start k-fold
     for x in range(0, 1):
