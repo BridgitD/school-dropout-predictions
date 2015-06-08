@@ -264,8 +264,9 @@ def main():
             preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             clf_results = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
      
-    print "End"
 
+    print clf_results
+    print "End"
 
 
 main()
