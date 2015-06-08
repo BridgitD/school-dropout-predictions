@@ -259,7 +259,7 @@ def main():
 
         #loop through classifiers, get predictions, scores
         clf_results = {}
-        clf_result[x] = {}
+        clf_results[x] = {}
         for name, clf in zip(names, classifiers):
             preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
