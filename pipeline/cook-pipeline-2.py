@@ -197,7 +197,6 @@ def plotROC(name, probs, test_data):
     pl.savefig(name)
 
 def clf_cv_loop(classifier, x_data, y_data):
-    print "clf cv loop......"
     poss_class_y_pred = []
     poss_times = []
     for k in classifier['kwords_list']:
@@ -209,24 +208,27 @@ def clf_cv_loop(classifier, x_data, y_data):
     return poss_class_y_pred[0][1], poss_times, poss_class_y_pred[0][0]
 
 def run_cv(x, y, clf_class, *args, **kwargs):
-    print "run cv......"
+    embed()
     # Construct a kfolds object
     kf = KFold(len(y),n_folds=5,shuffle=True)
+    y_pred = y.copy()
+    y_pred_proba = y.copy()
     # Iterate through folds
     for train_index, test_index in kf:
-        x_train, x_test, y_train = x.ix[train_index], x.ix[test_index], y.ix[train_index]
-        #why do i need to impute here again???
+        x_train = x.ix[train_index]
+        x_test  = x.ix[test_index]
+        y_train = y.ix[train_index]
         x_train = Imputer(strategy = 'median').fit_transform(x_train)
         x_test = Imputer(strategy = 'median').fit_transform(x_test)
         # Initialize a classifier with key word arguments
         clf = clf_class(**kwargs)
         clf.fit(x_train,y_train)
-        y_pred = clf.predict(x_test)
-        y_pred_proba = clf.predict_proba(x_test)
+        y_pred[test_index] = clf.predict(x_test)
+        y_pred_proba[test_index] = clf.predict_proba(x_test)
     return y_pred, y_pred_proba
 
 def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_pred_proba):
-    embed()
+    #embed()
     f = open('./output/'+classifier_name+'_evals_table.csv', 'w')
     f.write('parameters\ttime\t')
     for k, l in evals.iteritems():
@@ -234,7 +236,7 @@ def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_
     f.write('\n')
     for k in range(len(y_pred)):
         f.write(str(classifier['kwords_list'][k])+'\t')
-        f.write(str(poss_times[k])+'\t')
+        f.write(str(posslen_times[k])+'\t')
         for l, m in evals.iteritems():
             if l == 'precision_recall_curve':
                 eval_temp = m(y_data, y_pred_proba)
