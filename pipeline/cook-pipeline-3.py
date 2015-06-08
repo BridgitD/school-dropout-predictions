@@ -33,6 +33,11 @@ def cleanData(data, cohort):
         dropList = ['g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
         data.drop(dropList, axis=1, inplace=True)
 
+    #drop id, school id
+    data.drop('id', axis=1, inplace=True)
+    school_ids = [col for col in data.columns if 'school_id' in col]
+    data.drop(school_ids, axis=1, inplace=True)
+
     ##clean birth year/mo
     data.loc[:, 'g11_byrmm']= data.loc[:,'g11_byrmm'].astype(str)
     data.loc[:, 'birth_year'] = data['g11_byrmm'].str[0:4]
@@ -44,7 +49,6 @@ def cleanData(data, cohort):
         data['birth_year'].fillna(data[col].str[0:4], inplace=True)
         data['birth_mo'].fillna(data[col].str[4:6], inplace=True)
 
-    data.drop('id', axis=1, inplace=True)
 
     data.drop(birthday_cols, axis=1, inplace=True)
     
@@ -74,9 +78,6 @@ def cleanData(data, cohort):
     return data
 
 def makeDummies(data):
-    school_ids = [col for col in data.columns if 'school_id' in col]
-    data[school_ids] = data.loc[:,school_ids].astype(str, copy=False)
-
     data = pd.get_dummies(data, dummy_na=True)
 
     return data
