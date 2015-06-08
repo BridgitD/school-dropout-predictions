@@ -202,6 +202,7 @@ def getScores(clf, y_test, preds, x_test):
     return precision, recall, f1, accuracy
 
 def addResults(name, precision, recall, f1, accuracy):
+    clf_results[name] = {}
     clf_results[name]['accuracy'] = accuracy
     clf_results[name]['precision'] = precision
     clf_results[name]['recall'] = recall
