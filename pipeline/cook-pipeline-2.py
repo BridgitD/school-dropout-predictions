@@ -221,7 +221,6 @@ def clf_cv_loop(classifier, x_data, y_data):
 
 def run_cv(x, y, clf_class, *args, **kwargs):
     print "run cv......"
-    embed()
     # Construct a kfolds object
     kf = KFold(len(y),n_folds=5,shuffle=True)
     # Iterate through folds
