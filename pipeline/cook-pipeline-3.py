@@ -155,16 +155,16 @@ def imputeConditionalMean(data, col):
 
     return full_data
 
-def fitClf(clf, x_train, y_train, x_test):
+def fitClf(clf, x, y, train_index, test_index, y_pred, y_pred_proba):
     train_t0 = time.time()
-    clf.fit(x_train, y_train)
+    clf.fit(x.iloc[train_index], y.iloc[train_index])
     train_t1 = time.time()
 
     test_t0 = time.time()
-    preds = clf.predict(x_test).round()
+    y_pred.iloc[test_index] = clf.predict(x.iloc[test_index])
     test_t1 = time.time()
-    probs = clf.predict_proba(x_test)
-    return preds, probs, (train_t1-train_t0), (test_t1-test_t0)
+    y_pred_proba.iloc[test_index] = clf.predict_proba(x.iloc[test_index])
+    return y_pred, y_pred_proba, (train_t1-train_t0), (test_t1-test_t0)
 
 def getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time):
     print name
@@ -274,12 +274,13 @@ def main():
                 x_test[col] = x_test[col].fillna(value=x_test[col].mean())
 
             #get predictions, scores, make miss-classified tree
-            y_pred.iloc[test_index], y_pred_proba.iloc[test_index], train_time, test_time = fitClf(clf, x_train, y_train, x_test)
+            y_pred, y_pred_proba, train_time, test_time = fitClf(clf, x, y, train_index, test_index, y_pred, y_pred_proba)
         
         clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
 
         for col in x.columns.tolist():
             x[col] = x[col].fillna(value=x[col].mean())
+
         findMisClf(data, x, y, y_pred, name)
 
     print clf_results 
