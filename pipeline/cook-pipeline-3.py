@@ -193,21 +193,19 @@ def fitClf(clf, x_train, y_train, x_test):
     probs = clf.predict_proba(x_test)
     return preds, probs
 
-def getScores(clf, y_test, preds, x_test):
+def getScores(clf_results, name, clf, y_test, preds, x_test):
     embed()
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
     accuracy = clf.score(x_test, y_test)
-    return precision, recall, f1, accuracy
-
-def addResults(clf_results, name, precision, recall, f1, accuracy):
     clf_results[name] = {}
     clf_results[name]['accuracy'] = accuracy
     clf_results[name]['precision'] = precision
     clf_results[name]['recall'] = recall
     clf_results[name]['f1'] = f1
     return clf_results
+
 
  
 
@@ -257,11 +255,8 @@ def main():
         #fit clf
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
-        # evaluate classifier
-        precision, recall, f1, accuracy = getScores(clf, y_test, preds, x_test)
-
-        # add results to dict
-        clf_results = addResults(clf_results, name, precision, recall, f1, accuracy)
+        # evaluate classifier, add results to dict
+        clf_results = getScores(clf_results, name, clf, y_test, preds, x_test)
 
     print clf_results
 
