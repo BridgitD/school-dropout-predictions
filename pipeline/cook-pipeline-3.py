@@ -3,9 +3,6 @@ Christine Cook
 Machine Learning
 
 Notes:
-RF sometimes has 0 for precision.recall/f1
-LReg accuracy is weird
-add mispredict tree
 feature generation
 switch to cohort 2 testing
 '''
@@ -18,7 +15,6 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, Bagging
 from sklearn.metrics import roc_curve, auc, accuracy_score, precision_score, f1_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree, datasets, linear_model
-from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier  
 import time
 from sklearn.linear_model import SGDClassifier
@@ -144,20 +140,11 @@ def imputeData(data):
 
     return data
 
-def imputeConditionalMean(data, DV):
-    applyMeans = data.groupby([DV]).mean()
+def imputeConditionalMean(data, col):
     
-    data = data.fillna(data.groupby([DV]).mean())
-
-
     full_data = pd.DataFrame()
-    yes = data[data[col] == 1]
-    no = data[data[col] == 0]
-    for col in data.columns.tolist():
-        if col!=DV:
-            yes[col] = yes[col].fillna(applyMeans.loc[1][col])
-            yes[col] = no[col].fillna(applyMeans.loc[1][col])
-
+    yes = data[data[col] == 1].fillna(data[data[col] == 1].mean())
+    no = data[data[col] == 0].fillna(data[data[col] == 0].mean())
     full_data = pd.concat([yes, no])
 
     return data
@@ -170,8 +157,8 @@ def fitClf(clf, x_train, y_train, x_test):
     test_t0 = time.time()
     preds = clf.predict(x_test).round()
     test_t1 = time.time()
-    #probs = clf.predict_proba(x_test)
-    return preds, (train_t1-train_t0), (test_t1-test_t0)
+    probs = clf.predict_proba(x_test)
+    return preds, probs, (train_t1-train_t0), (test_t1-test_t0)
 
 def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time):
     print name
@@ -231,7 +218,7 @@ def findMisClf(df, X, y, y_pred, name):
 
     recurse(left, right, threshold, features, 0)
 
-  
+##drop birth year nan
 
 def main():
     #define constants
@@ -244,6 +231,7 @@ def main():
     #clean data
     data = cleanData(data, 1)
     #make dummies
+    embed()
     data = makeDummies(data)
     #limit rows to valid
     data = limitRows(data, pred_grade)
@@ -256,8 +244,8 @@ def main():
 
 
     # define parameters
-    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
-    classifiers = [KNeighborsClassifier(3), SVC(kernel='linear', probability=True, C=1, class_weight = {0: 1, 1:10}), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
+    names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging", "Logistic Regression", "Stochastic Gradient Descent: SVM"]
+    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
     for x in range(0, 1):
@@ -281,7 +269,7 @@ def main():
         clf_results = {}
         clf_results[x] = {}
         for name, clf in zip(names, classifiers):
-            preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
+            preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
             #findMisClf(test_data, x_test, y_test, preds, name)
 
