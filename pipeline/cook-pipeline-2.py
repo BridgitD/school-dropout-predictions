@@ -196,17 +196,6 @@ def plotROC(name, probs, test_data):
     pl.legend(loc="lower right")
     pl.savefig(name)
 
-def evaluateClassifier(name, y_true, y_pred, probs, test_data):
-    # precision, recall, F1 scores, accuracy
-    precision = precision_score(y_true, y_pred) 
-    recall = recall_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred)
-    # ROC curve, AUC on fig
-    #plotROC("Perfect Classifier", test_data['g12_dropout'], test_data)
-    #plotROC("Guessing", np.random.uniform(0, 1, len(test_data['g12_dropout'])), test_data)
-    #plotROC(name, probs, test_data)
-    return precision, recall, f1
-
 def clf_cv_loop(classifier, x_data, y_data):
     print "clf cv loop......"
     poss_class_y_pred = []
@@ -236,6 +225,25 @@ def run_cv(x, y, clf_class, *args, **kwargs):
         y_pred_proba = clf.predict_proba(x_test)
     return y_pred, y_pred_proba
 
+def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_pred_proba):
+    f = open('./output/'+classifier_name+'_evals_table.csv', 'w')
+    f.write('parameters\ttime\t')
+    for k, l in evals.iteritems():
+        f.write(k+'\t')
+    f.write('\n')
+    for k in range(len(y_pred)):
+        f.write(str(classifier['kwords_list'][k])+'\t')
+        f.write(str(poss_times[k])+'\t')
+        for l, m in evals.iteritems():
+            if l == 'precision_recall_curve':
+                eval_temp = m(y_data, y_pred_proba)
+                f.write(str(eval_temp)+'\t')
+            else:
+                eval_temp = m(y_data, y_pred[k])
+                f.write(str(eval_temp)+'\t')
+        f.write('\n')
+    f.close()
+
 
 def main():
     #read data
@@ -259,8 +267,6 @@ def main():
     #make data finite
     #data = makeFinite(data, 12) 
     data.dropna(axis=0, inplace=True)
-
-    print data.isnull().sum().tolist()
 
     #define features
     features = data.columns.tolist()
