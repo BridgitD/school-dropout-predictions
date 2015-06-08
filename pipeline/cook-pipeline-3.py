@@ -202,7 +202,6 @@ def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
     accuracy = clf.score(x_test, y_test)
-    clf_results[x] = {}
     clf_results[x][name] = {}
     clf_results[x][name]['accuracy'] = accuracy
     clf_results[x][name]['precision'] = precision
@@ -211,7 +210,7 @@ def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test
     clf_results[x][name]['train_time'] = train_time
     clf_results[x][name]['test_time'] = test_time
     print clf_results[x][name]
-    return clf_results
+    return clf_results[x][name]
 
 
   
@@ -249,7 +248,7 @@ def main():
     #start k-fold
     for x in range(0, 1):
         print "Split: " + str(x)
-        train_data, test_data = train_test_split(data, test_size=.05)
+        train_data, test_data = train_test_split(data, test_size=.2)
 
         # define xs, y
         colList = data.columns.tolist()
@@ -260,9 +259,10 @@ def main():
 
         #loop through classifiers, get predictions, scores
         clf_results = {}
+        clf_result[x] = {}
         for name, clf in zip(names, classifiers):
             preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
-            clf_results[x] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
+            clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
      
 
     print clf_results
