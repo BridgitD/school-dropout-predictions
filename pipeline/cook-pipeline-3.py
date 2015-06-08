@@ -184,6 +184,7 @@ def plotROC(name, probs, test_data):
     pl.savefig(name)
 
 def fitClf(clf, x_train, y_train, x_test):
+    embed()
     clf.fit(x_train, y_train)
     preds = clf.predict(x_test).round()
     #probs = clf.predict_proba(x_test)
@@ -228,6 +229,7 @@ def main():
         #mean-impute the rest
         for col in data.columns.tolist():
             data[col] = data[col].fillna(value=data[col].mean())
+
         cohort+=1
 
 
