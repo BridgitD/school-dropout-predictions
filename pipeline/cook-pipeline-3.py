@@ -191,6 +191,7 @@ def fitClf(clf, x_train, y_train, x_test):
     #time testing
     preds = clf.predict(x_test)
     probs = clf.predict_proba(x_test)
+    embed()
     return preds, probs
 
 def getScores(clf_results, name, clf, y_test, preds, x_test):
