@@ -257,6 +257,7 @@ def main():
     #time training
     for name, clf in zip(names, classifiers):
         #fit clf
+        embed()
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier, add results to dict
