@@ -191,8 +191,8 @@ def plotROC(name, probs, test_data):
 def fitClf(clf, x_train, y_train, x_test):
     clf.fit(x_train, y_train)
     preds = pd.Series(clf.predict(x_test))
-    probs = clf.predict_proba(x_test)
-    return preds, probs
+    #probs = clf.predict_proba(x_test)
+    return preds
 
 def getScores(clf_results, name, clf, y_test, preds, x_test):
     precision = precision_score(y_test, preds) 
@@ -236,8 +236,8 @@ def main():
         data[col] = data[col].fillna(value=data[col].mean())
 
     # define parameters
-    names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging"]
-    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), BaggingClassifier()]
+    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging"]
+    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier()]
 
     #start k-fold
     train_data, test_data = train_test_split(data, test_size=.5)
@@ -255,7 +255,7 @@ def main():
     for name, clf in zip(names, classifiers):
         print name
         #fit clf
-        preds, probs = fitClf(clf, x_train, y_train, x_test)
+        preds = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier, add results to dict
         clf_results = getScores(clf_results, name, clf, y_test, preds, x_test)
