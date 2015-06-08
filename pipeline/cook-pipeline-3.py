@@ -211,9 +211,10 @@ def main():
     test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
 
     #prepare data for model
+    cohort=1
     for data in [train_data, test_data]:
         #clean data
-        data = cleanData(data, 1)
+        data = cleanData(data, cohort)
         #make dummies
         data = makeDummies(data)
         #limit rows to valid
@@ -227,6 +228,7 @@ def main():
         #mean-impute the rest
         for col in data.columns.tolist():
             data[col] = data[col].fillna(value=data[col].mean())
+        cohort+=1
 
 
     # define parameters
