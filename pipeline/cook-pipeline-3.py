@@ -5,7 +5,6 @@ Machine Learning
 Notes:
 RF sometimes has 0 for precision.recall/f1
 LReg accuracy is weird
-add k-folds
 add mispredict tree
 add precison-recall curve
 feature generation
