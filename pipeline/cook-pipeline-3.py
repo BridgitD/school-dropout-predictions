@@ -26,6 +26,7 @@ from sklearn.linear_model import SGDClassifier
 import matplotlib
 matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
 import matplotlib.pyplot as plt
+from sklearn.metrics import precision_recall_curve
 
 
 def getSumStats(data):
