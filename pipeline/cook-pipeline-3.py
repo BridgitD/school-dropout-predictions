@@ -276,10 +276,10 @@ def main():
             #get predictions, scores, make miss-classified tree
             y_pred, y_pred_proba, train_time, test_time = fitClf(clf, x_train, x_test, y_train, train_index, test_index, y_pred, y_pred_proba)
         
-        clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
-
         for col in x.columns.tolist():
             x[col] = x[col].fillna(value=x[col].mean())
+
+        clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
 
         findMisClf(data, x, y, y_pred, name)
 
