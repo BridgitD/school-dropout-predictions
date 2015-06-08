@@ -250,15 +250,15 @@ def main():
     names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
     classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="modified_huber", penalty="l2", class_weight = {0: 1, 1:10})]
 
+    # define xs, y
+    colList = data.columns.tolist()
+    colList.remove(DV)
+    x, y = data.loc[:,colList], data.loc[:,DV]
+
     #start k-fold
     kf = KFold(len(y),n_folds=5,shuffle=True)
     y_pred = y.copy()
     y_pred_proba = y.copy()
-    
-    # define xs, y
-    colList = data.columns.tolist()
-    colList.remove(DV)
-    x, y = data.loc[:,colList], test_data.loc[:,DV]
 
     for train_index, test_index in kf:
         x_train = x.ix[train_index]
