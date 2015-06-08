@@ -186,27 +186,28 @@ def plotROC(name, probs, test_data):
     pl.legend(loc="lower right")
     pl.savefig(name)
 
-def clf_cv_loop(classifier, x_data, y_data):
-    poss_class_y_pred = []
-    poss_times = []
-    for k in classifier['kwords_list']:
-        t0 = time.time()
-        y_pred, y_pred_proba = run_cv(x_data, y_data, classifier['class'], k)
-        t1 = time.time()
-        total = t1-t0
-        poss_times.append(total)
-    return poss_class_y_pred, poss_times
+def fitClf(x_train, y_train):
+    clf.fit(x_train, y_train)
+    #time testing
+    preds = clf.predict(x_test)
+    probs = clf.predict_proba(x_test)
+    return preds, probs
 
-def evaluateClassifier(name, y_true, y_pred, probs, test_data):
-    # precision, recall, F1 scores, accuracy
-    precision = precision_score(y_true, y_pred) 
-    recall = recall_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred)
-    # ROC curve, AUC on fig
-    #plotROC("Perfect Classifier", test_data['g12_dropout'], test_data)
-    #plotROC("Guessing", np.random.uniform(0, 1, len(test_data['g12_dropout'])), test_data)
-    #plotROC(name, probs, test_data)
-    return precision, recall, f1 
+
+def getScores(y_test, preds, x_test):
+    precision = precision_score(y_test, preds) 
+    recall = recall_score(y_test, preds)
+    f1 = f1_score(y_test, preds)
+    accuracy = clf.score(x_test, y_test)
+    return precision, recall, f1, accuracy
+
+def addResults(name, precision, recall, f1, accuracy):
+    clf_results[name]['accuracy'] = accuracy
+    clf_results[name]['precision'] = precision
+    clf_results[name]['recall'] = recall
+    clf_results[name]['f1'] = f1
+    return clf_results
+
  
 
 def main():
@@ -236,54 +237,31 @@ def main():
     #names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Bagging"]
     #classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), BaggingClassifier()]
 
-    classifiers =   {'DecisionTreeClassifier': {'class': DecisionTreeClassifier}}
-
     names = ["Decision Tree"]
-    #classifiers = [DecisionTreeClassifier(max_depth=5)]
-
-    for i in range(1,6,1):
-        temp = classifiers['DecisionTreeClassifier'].get('kwords_list', [])
-        temp.append({'max_depth': i})
-
-    embed()
+    classifiers = [DecisionTreeClassifier(max_depth=5)]
 
     #start k-fold
     train_data, test_data = train_test_split(data, test_size=.2)
 
-    # define Xs, Y
+    # define xs, Y
     colList = data.columns.tolist()
     colList.remove('g12_dropout')
-    X_train = train_data.loc[:,colList]
-    y_train = train_data.loc[:,'g12_dropout']
-    X_test = test_data.loc[:,colList]
-    y_test = test_data.loc[:,'g12_dropout']
-
-    tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
-                     'C': [1, 10, 100, 1000]},
-                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
+    x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
+    y_train, y_test = train_data.loc[:,'g12_dropout'], test_data.loc[:,'g12_dropout']
 
     clf_results = {}
 
     #loop through classifiers, get predictions, scores
     #time training
-    clf.fit(X_train, y_train)
-    #time testing
-    preds = clf.predict(X_test)
-    probs = clf.predict_proba(X_test)[::,1]
+    for name, clf in zip(names, classifiers):
+        #fit clf
+        preds, probs = fitClf(x_train, y_train)
 
-    # evaluate classifier
-    precision, recall, f1 = evaluateClassifier(name, y_test, preds, probs, test_data)
-    accuracy = clf.score(x_test, y_test)
+        # evaluate classifier
+        precision, recall, f1, accuracy = getScores(y_test, preds, x_test)
 
-    # add results to dict
-    clf_results[name] = {}
-    clf_results[name]['accuracy'] = accuracy
-    clf_results[name]['precision'] = precision
-    clf_results[name]['recall'] = recall
-    clf_results[name]['f1'] = f1
-    clf_results[name]['testing time'] = testing_time
-    clf_results[name]['training time'] = training_time
-
+        # add results to dict
+        clf_results = addResults(name, precision, recall, f1, accuracy)
 
     print clf_results
 
