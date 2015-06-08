@@ -23,6 +23,9 @@ import time
 from sklearn import tree
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import SGDClassifier
+import matplotlib
+matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
+import matplotlib.pyplot as plt
 
 
 def getSumStats(data):
@@ -222,6 +225,33 @@ def findMisClf(df, X, y, y_pred, name):
 
     recurse(left, right, threshold, features, 0)
 
+def plot_precision_recall_n(y_actual, y_prob, model_name):
+    y_score = y_prob
+    precision_curve, recall_curve, pr_thresholds = precision_recall_curve(y_actual, y_score)
+    precision_curve = precision_curve[:-1]
+    recall_curve = recall_curve[:-1]
+
+    pct_above_per_thresh = []
+    number_scored = len(y_score)
+    for value in pr_thresholds:
+        num_above_thresh = len(y_score[y_score>=value])
+        pct_above_thresh = num_above_thresh / float(number_scored)
+        pct_above_per_thresh.append(pct_above_thresh)
+    pct_above_per_thresh = np.array(pct_above_per_thresh)
+
+    plt.clf()
+    fig, ax1 = plt.subplots()
+    ax1.plot(pct_above_per_thresh, precision_curve, 'b')
+    ax1.set_xlabel('percent of population')
+    ax1.set_ylabel('precision', color='b')
+    ax2 = ax1.twinx()
+    ax2.plot(pct_above_per_thresh, recall_curve, 'r')
+    ax2.set_ylabel('recall', color='r')
+    name = model_name + "Precision Recall vs Population"
+    plt.title(name)
+    plt.savefig('/mnt/data2/education_data/mcps/school-dropout-predictions/graphs/' + model_name + '_precision_recall_n.png')
+ 
+
 
 def main():
     #define constants
@@ -279,8 +309,13 @@ def main():
         for col in x.columns.tolist():
             x[col] = x[col].fillna(value=x[col].mean())
 
+        #get results
         clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
+        
+        #plot precision recall
+        plot_precision_recall_n(y, y_pred_proba, name)
 
+        #get missclassified tree
         findMisClf(data, x, y, y_pred, name)
 
     print clf_results 
