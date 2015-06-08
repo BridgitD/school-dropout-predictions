@@ -201,7 +201,8 @@ def findMisClf(df, X, y, y_pred, name):
 
     # Determine which observations are being misclassified
     tree = DecisionTreeClassifier(max_depth=3)
-    tree.fit(df[X.columns], df[correct])
+    embed()
+    tree.fit(X, df[correct])
     feature_names = df.columns
     left, right = tree.tree_.children_left, tree.tree_.children_right
     threshold = tree.tree_.threshold
