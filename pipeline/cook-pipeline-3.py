@@ -6,7 +6,6 @@ Notes:
 RF sometimes has 0 for precision.recall/f1
 LReg accuracy is weird
 add k-folds
-add timing
 add mispredict tree
 add precison-recall curve
 feature generation
@@ -197,19 +196,20 @@ def fitClf(clf, x_train, y_train, x_test):
     #probs = clf.predict_proba(x_test)
     return preds, (train_t1-train_t0), (test_t1-test_t0)
 
-def getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time):
+def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time):
+    print name
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
     accuracy = clf.score(x_test, y_test)
-    clf_results[name] = {}
-    clf_results[name]['accuracy'] = accuracy
-    clf_results[name]['precision'] = precision
-    clf_results[name]['recall'] = recall
-    clf_results[name]['f1'] = f1
-    clf_results[name]['train_time'] = train_time
-    clf_results[name]['test_time'] = test_time
-    print clf_results[name]
+    clf_results[x][name] = {}
+    clf_results[x][name]['accuracy'] = accuracy
+    clf_results[x][name]['precision'] = precision
+    clf_results[x][name]['recall'] = recall
+    clf_results[x][name]['f1'] = f1
+    clf_results[x][name]['train_time'] = train_time
+    clf_results[x][name]['test_time'] = test_time
+    print clf_results[x][name]
     return clf_results
 
 
@@ -246,21 +246,23 @@ def main():
     classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
-    train_data, test_data = train_test_split(data, test_size=.05)
+    for x in range(0, 3):
+        print "Split: " + str(x)
+        train_data, test_data = train_test_split(data, test_size=.05)
 
-    # define xs, y
-    colList = data.columns.tolist()
-    colList.remove(DV)
-    x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
-    y_train, y_test = train_data.loc[:,DV], test_data.loc[:,DV]
+        # define xs, y
+        colList = data.columns.tolist()
+        colList.remove(DV)
+        x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
+        y_train, y_test = train_data.loc[:,DV], test_data.loc[:,DV]
 
 
-    #loop through classifiers, get predictions, scores
-    clf_results = {}
-    for name, clf in zip(names, classifiers):
-        preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
-        clf_results = getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time)
- 
+        #loop through classifiers, get predictions, scores
+        clf_results[x] = {}
+        for name, clf in zip(names, classifiers):
+            preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
+            clf_results = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
+     
     print "End"
 
 
