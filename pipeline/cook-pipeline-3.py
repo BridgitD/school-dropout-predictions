@@ -186,7 +186,7 @@ def plotROC(name, probs, test_data):
     pl.legend(loc="lower right")
     pl.savefig(name)
 
-def fitClf(clf, x_train, y_train):
+def fitClf(clf, x_train, y_train, x_test):
     clf.fit(x_train, y_train)
     #time testing
     preds = clf.predict(x_test)
@@ -254,7 +254,7 @@ def main():
     #time training
     for name, clf in zip(names, classifiers):
         #fit clf
-        preds, probs = fitClf(clf, x_train, y_train)
+        preds, probs = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier
         precision, recall, f1, accuracy = getScores(y_test, preds, x_test)
