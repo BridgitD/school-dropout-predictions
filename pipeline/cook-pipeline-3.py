@@ -21,6 +21,7 @@ from sklearn import tree, datasets, linear_model
 from sklearn.tree import DecisionTreeClassifier  
 import time
 from sklearn import tree
+from sklearn.cross_validation import KFold
 from sklearn.linear_model import SGDClassifier
 
 
@@ -250,29 +251,34 @@ def main():
     classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="modified_huber", penalty="l2", class_weight = {0: 1, 1:10})]
 
     #start k-fold
-    for x in range(0, 1):
-        print "Split: " + str(x)
-        train_data, test_data = train_test_split(data, test_size=.3) 
- 
-        #conditional mean imputation
-        for col in test_data.columns.tolist():
-            test_data[col] = test_data[col].fillna(value=data[col].mean())
-        for col in train_data.columns.tolist():
-            train_data[col] = train_data[col].fillna(value=train_data[col].mean())
+    kf = KFold(len(y),n_folds=5,shuffle=True)
+    y_pred = y.copy()
+    y_pred_proba = y.copy()
+    
+    # define xs, y
+    colList = data.columns.tolist()
+    colList.remove(DV)
+    x, y = data.loc[:,colList], test_data.loc[:,DV]
 
-        # define xs, y
-        colList = data.columns.tolist()
-        colList.remove(DV)
-        x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
-        y_train, y_test = train_data.loc[:,DV], test_data.loc[:,DV]
+    for train_index, test_index in kf:
+        x_train = x.ix[train_index]
+        x_test  = x.ix[test_index]
+        y_train = y.ix[train_index]
+
+        #mean imputation
+        for col in x_train.columns.tolist():
+            x_train[col] = x_train[col].fillna(value=x_train[col].mean())
+        for col in x_test.columns.tolist():
+            x_test[col] = x_test[col].fillna(value=x_test[col].mean())
 
         #loop through classifiers, get predictions, scores, make miss-classified tree
         clf_results = {}
         clf_results[x] = {}
         for name, clf in zip(names, classifiers):
             preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
+            y_pred[test_index] = clf.predict(x_test)
+            y_pred_proba[test_index] = clf.predict_proba(x_test)
             clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
-            findMisClf(test_data, x_test, y_test, preds, name)
 
     #print clf_results 
     print "End"
