@@ -265,10 +265,11 @@ def main():
         train_data, test_data = train_test_split(data, test_size=.2)
 
         #conditional mean imputation
-        embed()
-        train_data = imputeConditionalMean(train_data, DV)
+        #train_data = imputeConditionalMean(train_data, DV)
         for col in test_data.columns.tolist():
             test_data[col] = test_data[col].fillna(value=data[col].mean())
+        for col in train_data.columns.tolist():
+            train_data[col] = train_data[col].fillna(value=train_data[col].mean())
 
         # define xs, y
         colList = data.columns.tolist()
