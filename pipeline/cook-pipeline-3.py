@@ -186,7 +186,7 @@ def plotROC(name, probs, test_data):
     pl.legend(loc="lower right")
     pl.savefig(name)
 
-def fitClf(x_train, y_train):
+def fitClf(clf, x_train, y_train):
     clf.fit(x_train, y_train)
     #time testing
     preds = clf.predict(x_test)
@@ -229,8 +229,7 @@ def main():
     #impute data 
     data = imputeData(data)
 
-    #make data finite
-    #data = makeFinite(data, 12) 
+    #drop data if still missing
     data.dropna(axis=0, inplace=True)
 
     # define parameters
@@ -243,7 +242,7 @@ def main():
     #start k-fold
     train_data, test_data = train_test_split(data, test_size=.2)
 
-    # define xs, Y
+    # define xs, y
     colList = data.columns.tolist()
     colList.remove('g12_dropout')
     x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
@@ -255,7 +254,7 @@ def main():
     #time training
     for name, clf in zip(names, classifiers):
         #fit clf
-        preds, probs = fitClf(x_train, y_train)
+        preds, probs = fitClf(clf, x_train, y_train)
 
         # evaluate classifier
         precision, recall, f1, accuracy = getScores(y_test, preds, x_test)
