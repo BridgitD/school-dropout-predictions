@@ -278,6 +278,8 @@ def main():
         
         clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
 
+        for col in x.columns.tolist():
+            x[col] = x[col].fillna(value=x[col].mean())
         findMisClf(data, x, y, y_pred, name)
 
     print clf_results 
