@@ -238,7 +238,7 @@ def main():
     classifiers = [RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1)]
 
     #start k-fold
-    train_data, test_data = train_test_split(data, test_size=.2)
+    train_data, test_data = train_test_split(data, test_size=.3)
 
     # define xs, y
     colList = data.columns.tolist()
@@ -251,8 +251,8 @@ def main():
     #loop through classifiers, get predictions, scores
     #time training
     for name, clf in zip(names, classifiers):
-        #fit clf
         embed()
+        #fit clf
         preds, probs = fitClf(clf, x_train, y_train, x_test)
 
         # evaluate classifier, add results to dict
