@@ -224,16 +224,15 @@ def main():
 
     #shrink dataset size
     data = chooseCols(data, 12)
-
+    embed()
     #impute data 
     data = imputeData(data)
 
     #drop data if still missing
-    data['g12_dropout'].dropna(axis=0, inplace=True)
+    data = data[data['g12_dropout'].notnull()]
 
     #mean-impute the rest
     data.fillna(value=data.mean(), inplace=True)
-    embed()
 
     # define parameters
     #names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Bagging"]
