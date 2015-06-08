@@ -7,6 +7,10 @@ RF sometimes has 0 for precision.recall/f1
 LReg accuracy is weird
 add k-folds
 add timing
+add mispredict tree
+add precison-recall curve
+feature generation
+switch to cohort 2 testing
 '''
 from IPython import embed
 import pandas as pd
@@ -21,7 +25,6 @@ from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier  
 import time
 from sklearn.linear_model import SGDClassifier
-from sklearn.naive_bayes import GaussianNB
 
 
 def getSumStats(data):
@@ -184,12 +187,17 @@ def plotROC(name, probs, test_data):
     pl.savefig(name)
 
 def fitClf(clf, x_train, y_train, x_test):
+    train_t0 = time.time()
     clf.fit(x_train, y_train)
-    preds = clf.predict(x_test).round()
-    #probs = clf.predict_proba(x_test)
-    return preds
+    train_t1 = time.time()
 
-def getScores(clf_results, name, clf, y_test, preds, x_test):
+    test_t0 = time.time()
+    preds = clf.predict(x_test).round()
+    test_t1 = time.time()
+    #probs = clf.predict_proba(x_test)
+    return preds, (train_t1-train_t0), (test_t1-test_t0)
+
+def getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time):
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
@@ -199,6 +207,8 @@ def getScores(clf_results, name, clf, y_test, preds, x_test):
     clf_results[name]['precision'] = precision
     clf_results[name]['recall'] = recall
     clf_results[name]['f1'] = f1
+    clf_results[name]['train_time'] = train_time
+    clf_results[name]['test_time'] = test_time
     print clf_results[name]
     return clf_results
 
@@ -206,24 +216,26 @@ def getScores(clf_results, name, clf, y_test, preds, x_test):
   
 
 def main():
+    #define constants
+    pred_grade = 12
+    DV = 'g' + str(pred_grade) + '_dropout'
+
     #read data
     data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
-
     #test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
 
-    #prepare data for model
     #clean data
     data = cleanData(data, 1)
     #make dummies
     data = makeDummies(data)
     #limit rows to valid
-    data = limitRows(data, 12)
+    data = limitRows(data, pred_grade)
     #shrink dataset size
-    data = chooseCols(data, 12)
+    data = chooseCols(data, pred_grade)
     #impute data 
     data = imputeData(data)
     #drop data if still missing
-    data = data[data['g12_dropout'].notnull()]
+    data = data[data[DV].notnull()]
     #mean-impute the rest
     for col in data.columns.tolist():
         data[col] = data[col].fillna(value=data[col].mean())
@@ -234,25 +246,23 @@ def main():
     classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
-    train_data, test_data = train_test_split(data, test_size=.2)
+    train_data, test_data = train_test_split(data, test_size=.05)
 
     # define xs, y
     colList = data.columns.tolist()
-    colList.remove('g12_dropout')
+    colList.remove(DV)
     x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
-    y_train, y_test = train_data.loc[:,'g12_dropout'], test_data.loc[:,'g12_dropout']
+    y_train, y_test = train_data.loc[:,DV], test_data.loc[:,DV]
 
-    clf_results = {}
 
     #loop through classifiers, get predictions, scores
+    clf_results = {}
     for name, clf in zip(names, classifiers):
-        #fit clf
-        preds = fitClf(clf, x_train, y_train, x_test)
-
-        # evaluate classifier, add results to dict
-        clf_results = getScores(clf_results, name, clf, y_test, preds, x_test)
-
+        preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
+        clf_results = getScores(clf_results, name, clf, y_test, preds, x_test, train_time, test_time)
  
     print "End"
+
+
 
 main()
