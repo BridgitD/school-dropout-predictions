@@ -11,7 +11,6 @@ switch to cohort 2 testing
 '''
 from IPython import embed
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np 
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
