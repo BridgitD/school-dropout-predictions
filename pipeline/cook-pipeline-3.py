@@ -33,32 +33,6 @@ def getSumStats(data):
     desc.rename({0:'mode', '50%':'median'}, inplace=True)
     desc.to_csv("data_sumstats.csv")
 
-def makeChartDiscrete(data, col, title):
-    data_copy = data
-    data_copy = data_copy.dropna()
-    data_max = data_copy.iloc[:,col].max()
-    step = (data_max/50)
-    if step < 1:
-        bins=list(range(0, int(data_max), 1))
-    else:
-        bins=list(range(0, int(data_max), step))
-    pl.figure()
-    pl.title(title)
-    pl.xlabel(title)
-    pl.ylabel('Frequency')
-    bins = pl.hist(data_copy.iloc[:,col], bins)
-    pl.savefig(title)
-
-def makeChartContinuous(data, col, title):
-    y_vals = data.iloc[:,col]
-    data_id = data.iloc[:,0]
-    pl.figure()
-    pl.title(title)
-    pl.xlabel(title)
-    pl.ylabel('Frequency')
-    pl.scatter(y_vals,data_id)
-    pl.savefig(title)
-
 def cleanData(data, cohort):
     if cohort == 1:
         dropList = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
@@ -171,19 +145,12 @@ def imputeData(data):
 
     return data
 
-def plotROC(name, probs, test_data):
-    fpr, tpr, thresholds = roc_curve(test_data['g12_dropout'], probs)
-    roc_auc = auc(fpr, tpr)
-    pl.clf()
-    pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
-    pl.plot([0, 1], [0, 1], 'k--')
-    pl.xlim([0.0, 1.05])
-    pl.ylim([0.0, 1.05])
-    pl.xlabel('False Positive Rate')
-    pl.ylabel('True Positive Rate')
-    pl.title(name) 
-    pl.legend(loc="lower right")
-    pl.savefig(name)
+def imputeConditionalMean(data, col):
+    full_data = pd.DataFrame()
+    yes = data[data[col] == 1].fillna(data[data[col] == 1].mean())
+    no = data[data[col] == 0].fillna(data[data[col] == 0].mean())
+    full_data = pd.concat([yes, no])
+    return full_data
 
 def fitClf(clf, x_train, y_train, x_test):
     train_t0 = time.time()
@@ -212,6 +179,47 @@ def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test
     print clf_results[x][name]
     return clf_results[x][name]
 
+def findMisClf(df, X, y, y_pred, name):
+    '''
+    Takes a dataframe (df), column names of predictors (X) and a dependent
+    variable (y). Loops over generic classifiers to find predictions. Creates
+    a decision tree using prediction misclassification as the dependent variable.
+    '''
+
+    var_name = name + '_predict'
+    try:
+        df[var_name] = y_pred
+    except:
+        import pdb
+        pdb.set_trace()
+    correct = name + '_correct'
+    
+    # Determine "correctness" based on 0.5 threshold
+    df[correct] = (df[var_name] > 0.5).astype(int)
+
+    # Determine which observations are being misclassified
+    tree = DecisionTreeClassifier(max_depth=3)
+    tree.fit(df[X.columns], df[correct])
+    feature_names = df.columns
+    left      = tree.tree_.children_left
+    right     = tree.tree_.children_right
+    threshold = tree.tree_.threshold
+    features  = [feature_names[i] for i in tree.tree_.feature]
+    value = tree.tree_.value
+
+    def recurse(left, right, threshold, features, node):
+            if (threshold[node] != -2):
+                    print "if ( " + features[node] + " <= " + str(threshold[node]) + " ) {"
+                    if left[node] != -1:
+                            recurse (left, right, threshold, features,left[node])
+                    print "      } else {"
+                    if right[node] != -1:
+                            recurse (left, right, threshold, features,right[node])
+                    print "}"
+            else:
+                    print "return " + str(value[node])
+
+    recurse(left, right, threshold, features, 0)
 
   
 
@@ -229,16 +237,12 @@ def main():
     data = makeDummies(data)
     #limit rows to valid
     data = limitRows(data, pred_grade)
-    embed()
     #shrink dataset size
     data = chooseCols(data, pred_grade)
     #impute data 
     data = imputeData(data)
     #drop data if still missing
     data = data[data[DV].notnull()]
-    #mean-impute the rest
-    for col in data.columns.tolist():
-        data[col] = data[col].fillna(value=data[col].mean())
 
 
     # define parameters
@@ -250,22 +254,25 @@ def main():
         print "Split: " + str(x)
         train_data, test_data = train_test_split(data, test_size=.2)
 
+        #conditional mean imputation
+        train_data = imputeConditionalMean(train_data, DV)
+        test_data = imputeConditionalMean(test_data, DV)
+
         # define xs, y
         colList = data.columns.tolist()
         colList.remove(DV)
         x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
         y_train, y_test = train_data.loc[:,DV], test_data.loc[:,DV]
 
-
-        #loop through classifiers, get predictions, scores
+        #loop through classifiers, get predictions, scores, make miss-classified tree
         clf_results = {}
         clf_results[x] = {}
         for name, clf in zip(names, classifiers):
             preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
-     
+            findMisClf(test_data, x_test, y_test, preds, name)
 
-    print clf_results
+    #print clf_results
     print "End"
 
 
