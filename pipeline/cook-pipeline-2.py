@@ -54,7 +54,7 @@ def cleanData(data, cohort):
         data['birth_year'].fillna(data[col].str[0:4], inplace=True)
         data['birth_mo'].fillna(data[col].str[4:6], inplace=True)
 
-    #data.drop('id', axis=1, inplace=True)
+    data.drop('id', axis=1, inplace=True)
 
     data.drop(birthday_cols, axis=1, inplace=True)
     
@@ -224,18 +224,17 @@ def run_cv(x, y, clf_class, *args, **kwargs):
     embed()
     # Construct a kfolds object
     kf = KFold(len(y),n_folds=5,shuffle=True)
-    y_pred = y.copy()
-    y_pred_proba = y.copy()
     # Iterate through folds
     for train_index, test_index in kf:
-        x_train = x.ix[train_index]
-        x_test  = x.ix[test_index]
-        y_train = y.ix[train_index]
+        x_train, x_test, y_train = x.ix[train_index], x.ix[test_index], y.ix[train_index]
+        #why do i need to impute here again???
+        x_train = Imputer(strategy = 'median').fit_transform(x_train)
+        x_test = Imputer(strategy = 'median').fit_transform(x_test)
         # Initialize a classifier with key word arguments
         clf = clf_class(**kwargs)
         clf.fit(x_train,y_train)
-        y_pred[test_index] = clf.predict(x_test)
-        y_pred_proba[test_index] = clf.predict_proba(x_test)
+        y_pred = clf.predict(x_test)
+        y_pred_proba = clf.predict_proba(x_test)
 
     return y_pred, y_pred_proba
 
