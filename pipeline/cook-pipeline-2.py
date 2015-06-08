@@ -217,6 +217,7 @@ def clf_cv_loop(classifier, x_data, y_data):
         t1 = time.time()
         total = t1-t0
         poss_times.append(total)
+        embed()
     return poss_class_y_pred, poss_times
 
 def run_cv(x, y, clf_class, *args, **kwargs):
@@ -234,7 +235,6 @@ def run_cv(x, y, clf_class, *args, **kwargs):
         clf.fit(x_train,y_train)
         y_pred = clf.predict(x_test)
         y_pred_proba = clf.predict_proba(x_test)
-
     return y_pred, y_pred_proba
 
 
