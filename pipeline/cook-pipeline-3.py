@@ -32,6 +32,32 @@ def getSumStats(data):
     desc.rename({0:'mode', '50%':'median'}, inplace=True)
     desc.to_csv("data_sumstats.csv")
 
+def makeChartDiscrete(data, col, title):
+    data_copy = data
+    data_copy = data_copy.dropna()
+    data_max = data_copy.iloc[:,col].max()
+    step = (data_max/50)
+    if step < 1:
+        bins=list(range(0, int(data_max), 1))
+    else:
+        bins=list(range(0, int(data_max), step))
+    pl.figure()
+    pl.title(title)
+    pl.xlabel(title)
+    pl.ylabel('Frequency')
+    bins = pl.hist(data_copy.iloc[:,col], bins)
+    pl.savefig(title)
+
+def makeChartContinuous(data, col, title):
+    y_vals = data.iloc[:,col]
+    data_id = data.iloc[:,0]
+    pl.figure()
+    pl.title(title)
+    pl.xlabel(title)
+    pl.ylabel('Frequency')
+    pl.scatter(y_vals,data_id)
+    pl.savefig(title)
+
 def cleanData(data, cohort):
     if cohort == 1:
         dropList = ['g6_tardyr','g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_gradeexp', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_gradeexp', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_gradeexp', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_gradeexp', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_gradeexp', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_gradeexp', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_gradeexp', 'g12_grade', 'g12_wcode']
@@ -90,6 +116,20 @@ def makeDummies(data):
 
     return data
 
+def limitRows(data, pred_grade):
+    #get rid of previous dropouts
+    for x in range(6, pred_grade-1):
+        data = data[data.g6_dropout !=1]
+        data = data[data.g7_dropout !=1]
+        data = data[data.g8_dropout !=1]
+        data = data[data.g9_dropout !=1]
+        if pred_grade >= 10:
+            data = data[data.g10_dropout !=1]
+            if pred_grade >= 11:
+                data = data[data.g11_dropout !=1]
+
+    return data
+
 def chooseCols(data, pred_grade):
     #drop 'future' vars
     for x in range(pred_grade, 13):
@@ -127,59 +167,6 @@ def imputeData(data):
         for col in colList:
             data[col] = data[col].fillna(rowMean)
 
-    return data
-
-def limitRows(data, pred_grade):
-    #get rid of previous dropouts
-    for x in range(6, pred_grade-1):
-        data = data[data.g6_dropout !=1]
-        data = data[data.g7_dropout !=1]
-        data = data[data.g8_dropout !=1]
-        data = data[data.g9_dropout !=1]
-        if pred_grade >= 10:
-            data = data[data.g10_dropout !=1]
-            if pred_grade >= 11:
-                data = data[data.g11_dropout !=1]
-
-    return data
-
-def makeFinite(data, pred_grade):
-    #keep finite
-    colList = [col for col in data.columns if 'dropout' in col]
-    doVar = 'g' + str(pred_grade) + '_dropout'
-    colList.remove(doVar)
-    data.drop(colList, axis=1, inplace=True)
-    data = data.dropna(axis=0)
-    return data
-
-def makeChartDiscrete(data, col, title):
-    data_copy = data
-    data_copy = data_copy.dropna()
-    data_max = data_copy.iloc[:,col].max()
-    step = (data_max/50)
-    if step < 1:
-        bins=list(range(0, int(data_max), 1))
-    else:
-        bins=list(range(0, int(data_max), step))
-    pl.figure()
-    pl.title(title)
-    pl.xlabel(title)
-    pl.ylabel('Frequency')
-    bins = pl.hist(data_copy.iloc[:,col], bins)
-    pl.savefig(title)
-
-def makeChartContinuous(data, col, title):
-    y_vals = data.iloc[:,col]
-    data_id = data.iloc[:,0]
-    pl.figure()
-    pl.title(title)
-    pl.xlabel(title)
-    pl.ylabel('Frequency')
-    pl.scatter(y_vals,data_id)
-    pl.savefig(title)
-
-def imputeMean(data):
-    data.fillna(value=data.mean(), inplace=True)
     return data
 
 def plotROC(name, probs, test_data):
@@ -220,36 +207,34 @@ def getScores(clf_results, name, clf, y_test, preds, x_test):
 
 def main():
     #read data
-    data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all.csv', index_col=False)
+    train_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
+    test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
 
-    #clean data
-    data = cleanData(data, 1)
+    #prepare data for model
+    for data in [train_data, test_data]:
+        #clean data
+        data = cleanData(data, 1)
+        #make dummies
+        data = makeDummies(data)
+        #limit rows to valid
+        data = limitRows(data, 12)
+        #shrink dataset size
+        data = chooseCols(data, 12)
+        #impute data 
+        data = imputeData(data)
+        #drop data if still missing
+        data = data[data['g12_dropout'].notnull()]
+        #mean-impute the rest
+        for col in data.columns.tolist():
+            data[col] = data[col].fillna(value=data[col].mean())
 
-    #make dummies
-    data = makeDummies(data)
-
-    #limit rows to valid
-    data = limitRows(data, 12)
-
-    #shrink dataset size
-    data = chooseCols(data, 12)
-
-    #impute data 
-    data = imputeData(data)
-
-    #drop data if still missing
-    data = data[data['g12_dropout'].notnull()]
-
-    #mean-impute the rest
-    for col in data.columns.tolist():
-        data[col] = data[col].fillna(value=data[col].mean())
 
     # define parameters
     names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
     classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
-    train_data, test_data = train_test_split(data, test_size=.2)
+    #train_data, test_data = train_test_split(data, test_size=.2)
 
     # define xs, y
     colList = data.columns.tolist()
@@ -260,9 +245,7 @@ def main():
     clf_results = {}
 
     #loop through classifiers, get predictions, scores
-    #time training
     for name, clf in zip(names, classifiers):
-        print name
         #fit clf
         preds = fitClf(clf, x_train, y_train, x_test)
 
