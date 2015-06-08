@@ -91,7 +91,7 @@ def cleanData(data, cohort):
     data['gender'] = data['g11_gender']
     gender_cols = ['g12_gender', 'g11_gender', 'g10_gender', 'g9_gender', 'g8_gender', 'g7_gender', 'g6_gender']
     for col in gender_cols:
-        data['gender'] = data['gender'].fillna(data[col], inplace=True)
+        data['gender'] = data['gender'].fillna(data[col])
     
     data.drop(gender_cols, axis=1, inplace=True)
 
@@ -184,7 +184,6 @@ def plotROC(name, probs, test_data):
     pl.savefig(name)
 
 def fitClf(clf, x_train, y_train, x_test):
-    embed()
     clf.fit(x_train, y_train)
     preds = clf.predict(x_test).round()
     #probs = clf.predict_proba(x_test)
@@ -208,41 +207,26 @@ def getScores(clf_results, name, clf, y_test, preds, x_test):
 
 def main():
     #read data
-    train_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
-    test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
+    data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
+
+    #test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
 
     #prepare data for model
     #clean data
-    train_data = cleanData(train_data, 1)
+    data = cleanData(data, 1)
     #make dummies
-    train_data = makeDummies(train_data)
+    data = makeDummies(data)
     #limit rows to valid
-    train_data = limitRows(train_data, 12)
+    data = limitRows(data, 12)
     #shrink dataset size
-    train_data = chooseCols(train_data, 12)
+    data = chooseCols(data, 12)
     #impute data 
-    train_data = imputeData(train_data)
+    data = imputeData(data)
     #drop data if still missing
-    train_data = train_data[train_data['g12_dropout'].notnull()]
+    data = data[data['g12_dropout'].notnull()]
     #mean-impute the rest
-    for col in train_data.columns.tolist():
-        train_data[col] = train_data[col].fillna(value=train_data[col].mean())
-
-    #clean data
-    test_data = cleanData(test_data, 2)
-    #make dummies
-    test_data = makeDummies(test_data)
-    #limit rows to valid
-    test_data = limitRows(test_data, 12)
-    #shrink dataset size
-    test_data = chooseCols(test_data, 12)
-    #impute data 
-    test_data = imputeData(test_data)
-    #drop data if still missing
-    test_data = test_data[test_data['g12_dropout'].notnull()]
-    #mean-impute the rest
-    for col in test_data.columns.tolist():
-        test_data[col] = test_data[col].fillna(value=test_data[col].mean())
+    for col in data.columns.tolist():
+        data[col] = data[col].fillna(value=data[col].mean())
 
 
     # define parameters
@@ -250,10 +234,10 @@ def main():
     classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
-    #train_data, test_data = train_test_split(data, test_size=.2)
+    train_data, test_data = train_test_split(data, test_size=.2)
 
     # define xs, y
-    colList = train_data.columns.tolist()
+    colList = data.columns.tolist()
     colList.remove('g12_dropout')
     x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
     y_train, y_test = train_data.loc[:,'g12_dropout'], test_data.loc[:,'g12_dropout']
