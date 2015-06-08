@@ -201,13 +201,12 @@ def findMisClf(df, X, y, y_pred, name):
 
     # Determine which observations are being misclassified
     tree = DecisionTreeClassifier(max_depth=3)
-    tree.fit(df[X.columns], df[correct])
+    clf = tree.fit(df[X.columns], df[correct])
     feature_names = df.columns
     left, right = tree.tree_.children_left, tree.tree_.children_right
     threshold = tree.tree_.threshold
     features = [feature_names[i] for i in tree.tree_.feature]
     value = tree.tree_.value
-    clf = tree.DecisionTreeClassifier()
     tree.export_graphviz(clf, out_file='tree.dot', feature_names = X.columns) 
 
     def recurse(left, right, threshold, features, node):
