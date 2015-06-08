@@ -248,7 +248,7 @@ def main():
 
     # define parameters
     names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
-    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="modified_huber", penalty="l2")]
+    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="modified_huber", penalty="l2", class_weight = {0: 1, 1:10})]
 
     #start k-fold
     for x in range(0, 1):
@@ -273,7 +273,7 @@ def main():
         for name, clf in zip(names, classifiers):
             preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
-            #findMisClf(test_data, x_test, y_test, preds, name)
+            findMisClf(test_data, x_test, y_test, preds, name)
 
     #print clf_results 
     print "End"
