@@ -5,7 +5,6 @@ Machine Learning
 Notes:
 RF sometimes has 0 for precision.recall/f1
 LReg accuracy is weird
-switch to reg svc, proba=true
 add mispredict tree
 feature generation
 switch to cohort 2 testing
@@ -19,7 +18,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, Bagging
 from sklearn.metrics import roc_curve, auc, accuracy_score, precision_score, f1_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree, datasets, linear_model
-from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier  
 import time
 from sklearn.linear_model import SGDClassifier
@@ -258,12 +257,12 @@ def main():
 
     # define parameters
     names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
-    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025, class_weight = {0: 1, 1:10}), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), linear_model.LinearRegression(class_weight = {0: 1, 1:10}), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
+    classifiers = [KNeighborsClassifier(3), SVC(Kernel='linear', probability=True, C=1, class_weight = {0: 1, 1:10}), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
     for x in range(0, 1):
         print "Split: " + str(x)
-        train_data, test_data = train_test_split(data, test_size=.2) 
+        train_data, test_data = train_test_split(data, test_size=.3) 
 
         #conditional mean imputation
         #train_data = imputeConditionalMean(train_data, DV)
