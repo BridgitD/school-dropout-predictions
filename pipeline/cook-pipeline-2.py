@@ -226,6 +226,7 @@ def run_cv(x, y, clf_class, *args, **kwargs):
     return y_pred, y_pred_proba
 
 def eval_clfs(y_pred, y_data, evals, classifier, classifier_name, poss_times, y_pred_proba):
+    embed()
     f = open('./output/'+classifier_name+'_evals_table.csv', 'w')
     f.write('parameters\ttime\t')
     for k, l in evals.iteritems():
