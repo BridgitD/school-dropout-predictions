@@ -247,7 +247,7 @@ def main():
     classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
-    for x in range(0, 3):
+    for x in range(0, 1):
         print "Split: " + str(x)
         train_data, test_data = train_test_split(data, test_size=.05)
 
@@ -262,7 +262,7 @@ def main():
         clf_results = {}
         for name, clf in zip(names, classifiers):
             preds, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
-            clf_results = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
+            clf_results[x] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
      
 
     print clf_results
