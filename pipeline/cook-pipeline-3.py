@@ -33,10 +33,12 @@ def cleanData(data, cohort):
         dropList = ['g6_school_name', 'g7_school_name', 'g8_school_name', 'g9_school_name', 'g10_school_name', 'g11_school_name', 'g12_school_name','g6_year', 'g6_grade', 'g6_wcode', 'g7_year', 'g7_grade', 'g7_wcode', 'g8_year', 'g8_grade', 'g8_wcode', 'g9_year', 'g9_grade', 'g9_wcode', 'g10_year', 'g10_grade', 'g10_wcode', 'g11_year', 'g11_grade', 'g11_wcode', 'g12_year', 'g12_grade', 'g12_wcode']
         data.drop(dropList, axis=1, inplace=True)
 
-    #drop id, school id
+    #drop id, school id, school name
     data.drop('id', axis=1, inplace=True)
     school_ids = [col for col in data.columns if 'school_id' in col]
+    school_names = [col for col in data.columns if 'school_name' in col]
     data.drop(school_ids, axis=1, inplace=True)
+    data.drop(school_names, axis=1, inplace=True)
 
     ##clean birth year/mo
     data.loc[:, 'g11_byrmm']= data.loc[:,'g11_byrmm'].astype(str)
@@ -49,10 +51,8 @@ def cleanData(data, cohort):
         data['birth_year'].fillna(data[col].str[0:4], inplace=True)
         data['birth_mo'].fillna(data[col].str[4:6], inplace=True)
 
-
     data.drop(birthday_cols, axis=1, inplace=True)
     
-
     #clean gender
     data['gender'] = data['g11_gender']
     gender_cols = ['g12_gender', 'g11_gender', 'g10_gender', 'g9_gender', 'g8_gender', 'g7_gender', 'g6_gender']
@@ -69,10 +69,10 @@ def cleanData(data, cohort):
     #create flag if a given student is missing a year's worth of data
     grade_id = ['g6_pid', 'g7_pid', 'g8_pid', 'g9_pid', 'g10_pid', 'g11_pid', 'g12_pid']
     year = 6
-    for g in grade_id:
-        col_name = 'g' + str(year) + '_missing'
-        data[col_name] = data[g].isnull()
-        data.drop(g, axis=1, inplace=True)
+    for grade_col in grade_id:
+        miss_col = 'g' + str(year) + '_missing'
+        data[miss_col] = data[grade_col].isnull()
+        data.drop(grade_col, axis=1, inplace=True)
         year+=1
 
     return data
@@ -89,6 +89,7 @@ def chooseCols(data, pred_grade):
         dropoutVar = 'g' + str(x) + '_dropout'
         if dropoutVar in dropVars:
             dropVars.remove(dropoutVar)
+
         data.drop(dropVars, axis=1, inplace=True)
 
     #drop irrelevent d/o vars
@@ -116,7 +117,7 @@ def imputeData(data):
         colList = [col for col in data.columns if word in col]
         rowMean = data[colList].mean(axis=1)
         for col in colList:
-            data[col].fillna(rowMean, inplace=True)
+            data[col] = data[col].fillna(rowMean)
 
     return data
 
@@ -189,7 +190,7 @@ def plotROC(name, probs, test_data):
 
 def fitClf(clf, x_train, y_train, x_test):
     clf.fit(x_train, y_train)
-    preds = clf.predict(x_test)
+    preds = pd.Series(clf.predict(x_test))
     probs = clf.predict_proba(x_test)
     return preds, probs
 
@@ -228,7 +229,11 @@ def main():
     data = imputeData(data)
 
     #drop data if still missing
-    data.dropna(axis=0, inplace=True)
+    data['g12_dropout'].dropna(axis=0, inplace=True)
+
+    #mean-impute the rest
+    data.fillna(value=data.mean(), inplace=True)
+    embed()
 
     # define parameters
     #names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Bagging"]
