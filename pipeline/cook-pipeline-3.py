@@ -262,9 +262,8 @@ def main():
     k=0
 
     for train_index, test_index in kf:
-        x_train = x.ix[train_index]
-        x_test  = x.ix[test_index]
-        y_train = y.ix[train_index]
+        x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
         #mean imputation
         for col in x_train.columns.tolist():
@@ -277,8 +276,8 @@ def main():
         clf_results[k] = {}
         for name, clf in zip(names, classifiers):
             preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
-            y_pred[test_index] = clf.predict(x_test)
-            y_pred_proba[test_index] = clf.predict_proba(x_test)
+            y_pred.iloc[test_index] = clf.predict(x_test)
+            y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
             clf_results[k][name] = getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time)
         k+=1
 
