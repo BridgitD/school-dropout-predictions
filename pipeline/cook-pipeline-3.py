@@ -203,7 +203,7 @@ def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test
     f1 = f1_score(y_test, preds)
     accuracy = clf.score(x_test, y_test)
     clf_results[x] = {}
-    clf_result[x][name] = {}
+    clf_results[x][name] = {}
     clf_results[x][name]['accuracy'] = accuracy
     clf_results[x][name]['precision'] = precision
     clf_results[x][name]['recall'] = recall
