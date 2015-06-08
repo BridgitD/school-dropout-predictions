@@ -257,12 +257,12 @@ def main():
 
     #loop through classifiers
     for name, clf in zip(names, classifiers):
-        #start k-fold
-        kf = KFold(len(y),n_folds=5,shuffle=True)
         y_pred = y.copy()
         y_pred_proba = y.copy()
         clf_results[name] = {}
 
+        #start k-fold
+        kf = KFold(len(y),n_folds=5,shuffle=True)
         for train_index, test_index in kf:
             x_train, x_test = x.iloc[train_index], x.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
@@ -274,9 +274,7 @@ def main():
                 x_test[col] = x_test[col].fillna(value=x_test[col].mean())
 
             #get predictions, scores, make miss-classified tree
-            preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
-            y_pred.iloc[test_index] = clf.predict(x_test)
-            y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
+            y_pred.iloc[test_index], y_pred_proba.iloc[test_index], train_time, test_time = fitClf(clf, x_train, y_train, x_test)
         
         clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
 
