@@ -134,7 +134,8 @@ def limitRows(data, pred_grade):
 def chooseCols(data, pred_grade):
     #drop 'future' vars
     for x in range(pred_grade, 13):
-        dropVars = [col for col in data.columns if str(x) in col]
+        grade = 'g' + str(x)
+        dropVars = [col for col in data.columns if grade in col]
         dropoutVar = 'g' + str(x) + '_dropout'
         if dropoutVar in dropVars:
             dropVars.remove(dropoutVar)
@@ -222,13 +223,13 @@ def main():
     #read data
     data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
     #test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
-    embed()
     #clean data
     data = cleanData(data, 1)
     #make dummies
     data = makeDummies(data)
     #limit rows to valid
     data = limitRows(data, pred_grade)
+    embed()
     #shrink dataset size
     data = chooseCols(data, pred_grade)
     #impute data 
