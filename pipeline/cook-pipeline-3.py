@@ -253,7 +253,7 @@ def main():
     colList = data.columns.tolist()
     colList.remove(DV)
     x, y = data.loc[:,colList], data.loc[:,DV]
-    clf_result = {}
+    clf_results = {}
 
     #loop through classifiers
     for name, clf in zip(names, classifiers):
