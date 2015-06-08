@@ -166,21 +166,21 @@ def fitClf(clf, x_train, y_train, x_test):
     probs = clf.predict_proba(x_test)
     return preds, probs, (train_t1-train_t0), (test_t1-test_t0)
 
-def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time):
+def getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time):
     print name
     precision = precision_score(y_test, preds) 
     recall = recall_score(y_test, preds)
     f1 = f1_score(y_test, preds)
     accuracy = clf.score(x_test, y_test)
-    clf_results[x][name] = {}
-    clf_results[x][name]['accuracy'] = accuracy
-    clf_results[x][name]['precision'] = precision
-    clf_results[x][name]['recall'] = recall
-    clf_results[x][name]['f1'] = f1
-    clf_results[x][name]['train_time'] = train_time
-    clf_results[x][name]['test_time'] = test_time
-    print clf_results[x][name]
-    return clf_results[x][name]
+    clf_results[k][name] = {}
+    clf_results[k][name]['accuracy'] = accuracy
+    clf_results[k][name]['precision'] = precision
+    clf_results[k][name]['recall'] = recall
+    clf_results[k][name]['f1'] = f1
+    clf_results[k][name]['train_time'] = train_time
+    clf_results[k][name]['test_time'] = test_time
+    print clf_results[k][name]
+    return clf_results[k][name]
 
 def findMisClf(df, X, y, y_pred, name):
     '''
@@ -259,6 +259,7 @@ def main():
     kf = KFold(len(y),n_folds=5,shuffle=True)
     y_pred = y.copy()
     y_pred_proba = y.copy()
+    k=0
 
     for train_index, test_index in kf:
         x_train = x.ix[train_index]
@@ -273,12 +274,13 @@ def main():
 
         #loop through classifiers, get predictions, scores, make miss-classified tree
         clf_results = {}
-        clf_results[x] = {}
+        clf_results[k] = {}
         for name, clf in zip(names, classifiers):
             preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
             y_pred[test_index] = clf.predict(x_test)
             y_pred_proba[test_index] = clf.predict_proba(x_test)
-            clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
+            clf_results[k][name] = getScores(clf_results, k, name, clf, y_test, preds, x_test, train_time, test_time)
+        k+=1
 
     #print clf_results 
     print "End"
