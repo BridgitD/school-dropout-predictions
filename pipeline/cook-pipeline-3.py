@@ -278,7 +278,7 @@ def main():
             y_pred.iloc[test_index] = clf.predict(x_test)
             y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
         
-        clf_results[name] = getScores(clf_results, name, clf, y, preds, x, train_time, test_time)
+        clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
 
         findMisClf(data, x, y, y_pred, name)
 
