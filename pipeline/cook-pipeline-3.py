@@ -190,7 +190,7 @@ def plotROC(name, probs, test_data):
 
 def fitClf(clf, x_train, y_train, x_test):
     clf.fit(x_train, y_train)
-    preds = pd.Series(clf.predict(x_test))
+    preds = clf.predict(x_test).round()
     #probs = clf.predict_proba(x_test)
     return preds
 
