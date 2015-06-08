@@ -263,6 +263,7 @@ def main():
         y_pred_proba = y.copy()
 
         for train_index, test_index in kf:
+            clf_results = {}
             x_train, x_test = x.iloc[train_index], x.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
