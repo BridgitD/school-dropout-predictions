@@ -1,6 +1,12 @@
 '''
 Christine Cook
 Machine Learning
+
+Notes:
+RF sometimes has 0 for precision.recall/f1
+LReg accuracy is weird
+add k-folds
+add timing
 '''
 from IPython import embed
 import pandas as pd
@@ -38,7 +44,7 @@ def cleanData(data, cohort):
     school_ids = [col for col in data.columns if 'school_id' in col]
     school_names = [col for col in data.columns if 'school_name' in col]
     data.drop(school_ids, axis=1, inplace=True)
-    data.drop(school_names, axis=1, inplace=True)
+    #data.drop(school_names, axis=1, inplace=True)
 
     ##clean birth year/mo
     data.loc[:, 'g11_byrmm']= data.loc[:,'g11_byrmm'].astype(str)
