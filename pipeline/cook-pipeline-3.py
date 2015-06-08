@@ -6,7 +6,6 @@ Notes:
 RF sometimes has 0 for precision.recall/f1
 LReg accuracy is weird
 add mispredict tree
-add precison-recall curve
 feature generation
 switch to cohort 2 testing
 '''
@@ -145,12 +144,23 @@ def imputeData(data):
 
     return data
 
-def imputeConditionalMean(data, col):
+def imputeConditionalMean(data, DV):
+    applyMeans = data.groupby([DV]).mean()
+    
+    data = data.fillna(data.groupby([DV]).mean())
+
+
     full_data = pd.DataFrame()
-    yes = data[data[col] == 1].fillna(data[data[col] == 1].mean())
-    no = data[data[col] == 0].fillna(data[data[col] == 0].mean())
+    yes = data[data[col] == 1]
+    no = data[data[col] == 0]
+    for col in data.columns.tolist():
+        if col!=DV:
+            yes[col] = yes[col].fillna(applyMeans.loc[1][col])
+            yes[col] = no[col].fillna(applyMeans.loc[1][col])
+
     full_data = pd.concat([yes, no])
-    return full_data
+
+    return data
 
 def fitClf(clf, x_train, y_train, x_test):
     train_t0 = time.time()
@@ -247,7 +257,7 @@ def main():
 
     # define parameters
     names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
-    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
+    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
 
     #start k-fold
     for x in range(0, 1):
