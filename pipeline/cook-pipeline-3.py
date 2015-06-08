@@ -232,13 +232,22 @@ def main():
     #data = makeFinite(data, 12) 
     data.dropna(axis=0, inplace=True)
 
+    # define parameters
+    #names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Bagging"]
+    #classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), BaggingClassifier()]
+
+    classifiers =   {'DecisionTreeClassifier': {'class': DecisionTreeClassifier}}
+
+    names = ["Decision Tree"]
+    #classifiers = [DecisionTreeClassifier(max_depth=5)]
+
+    for i in range(1,6,1):
+        temp = classifiers['DecisionTreeClassifier'].get('kwords_list', [])
+        temp.append({'max_depth': i})
+
     embed()
 
-    # define parameters
-    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging"]
-    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), linear_model.LinearRegression(), BaggingClassifier()]
-
-    #star k-fold
+    #start k-fold
     train_data, test_data = train_test_split(data, test_size=.2)
 
     # define Xs, Y
@@ -249,49 +258,36 @@ def main():
     X_test = test_data.loc[:,colList]
     y_test = test_data.loc[:,'g12_dropout']
 
+    tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
+                     'C': [1, 10, 100, 1000]},
+                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
+
     clf_results = {}
 
-        # loop through classifiers, get predictions, scores
-    for name, clf in zip(names, classifiers):
+    #loop through classifiers, get predictions, scores
+    #time training
+    clf.fit(X_train, y_train)
+    #time testing
+    preds = clf.predict(X_test)
+    probs = clf.predict_proba(X_test)[::,1]
 
-        #time training
-        start_time = time.clock()
-        clf.fit(X_train, y_train)
-        end_time = time.clock()
-        training_time = (end_time - start_time)
+    # evaluate classifier
+    precision, recall, f1 = evaluateClassifier(name, y_test, preds, probs, test_data)
+    accuracy = clf.score(x_test, y_test)
 
-        #time testing
-        start_time = time.clock()
-        if (name=="Linear Regression") | (name=="Linear SVM"):
-            probs = clf.predict(X_test)
-            preds = probs.round()
-        else:
-            preds = clf.predict(X_test)
-            probs = clf.predict_proba(X_test)[::,1]
-        end_time = time.clock()
-        testing_time = (end_time - start_time)
-
-        # evaluate classifier
-        precision, recall, f1 = evaluateClassifier(name, y_test, preds, probs, test_data)
-        accuracy = clf.score(X_test, y_test)
-
-        # add results to dict
-        clf_results[name] = {}
-        clf_results[name]['accuracy'] = accuracy
-        clf_results[name]['precision'] = precision
-        clf_results[name]['recall'] = recall
-        clf_results[name]['f1'] = f1
-        clf_results[name]['testing time'] = testing_time
-        clf_results[name]['training time'] = training_time
+    # add results to dict
+    clf_results[name] = {}
+    clf_results[name]['accuracy'] = accuracy
+    clf_results[name]['precision'] = precision
+    clf_results[name]['recall'] = recall
+    clf_results[name]['f1'] = f1
+    clf_results[name]['testing time'] = testing_time
+    clf_results[name]['training time'] = training_time
 
 
     print clf_results
 
-    with open('trial_' + str(x) + '.csv', 'wb') as f:
-        w = csv.DictWriter(f, clf_results.keys())
-        w.writeheader()
-    w.writerow(clf_results)
-    
+ 
     print "End"
 
 main()
