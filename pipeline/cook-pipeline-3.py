@@ -222,7 +222,7 @@ def main():
     #read data
     data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
     #test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
-
+    embed()
     #clean data
     data = cleanData(data, 1)
     #make dummies
