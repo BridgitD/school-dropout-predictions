@@ -3,4 +3,9 @@ According to the U.S. Department of Education, over 1.2 million American student
 
 Our goal with this project is to develop a scalable ranking system that will allow a school system to target their interventions to individuals who are most immediately at risk for dropping out of high school.
 
+# Navigating Our Code
+* `db_creation`: This folder contains the SQL code utilized to develop the initial database
+* `graphs`: This folder contains the final precision-recall v. population graphs
+* `pipeline`: This folder contains the many versions of our machine learning pipeline we created over the course of this project. The final pipeline is `pipeline/final_pipeline.py`.
+
 NOTE: This project was developed as part of a Machine Learning in Public Policy course at the University of Chicago, in partnership with its Center for Data Science in Public Policy.
