@@ -158,6 +158,11 @@ def imputeConditionalMean(data, col):
 
     return full_data
 
+def featureGen(data):
+    for x in range():
+
+    return data
+
 def fitClf(clf, x_train, x_test, y_train, train_index, test_index, y_pred, y_pred_proba):
     train_t0 = time.time()
     clf.fit(x_train, y_train)
@@ -271,6 +276,8 @@ def main():
     data = chooseCols(data, pred_grade)
     #impute data 
     data = imputeData(data)
+    #feature gen
+    data = featureGen(data)
     #drop data if still missing
     data = data[data[DV].notnull()]
 
@@ -316,7 +323,7 @@ def main():
         plot_precision_recall_n(y, y_pred_proba, name)
 
         #get missclassified tree
-        findMisClf(data, x, y, y_pred, name)
+        #findMisClf(data, x, y, y_pred, name)
 
     print clf_results 
     print "End"
