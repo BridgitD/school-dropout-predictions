@@ -27,7 +27,7 @@ matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve
 import sys
-
+from sklearn.linear_model import LogisticRegression
 
 def getSumStats(data):
     desc = data.iloc[:,1:].describe().T
@@ -163,12 +163,19 @@ def imputeConditionalMean(data, col):
 
     return full_data
 
-def featureGen(data):
-    embed() 
-    for x in range(6, 13):
+def featureGen(data, pred_grade):
+    #make annual GPA's
+    for x in range(6, pred_grade):
         colList = [col for col in data.columns if ('g' + str(x)) in col and 'mpa' in col]
         yrGPA = 'g' + str(x) + '_gpa'
-        data[yr_GPA] = data[colList].mean(axis=0)
+        data[yrGPA] = data[colList].mean(skipna=True, axis=1)
+
+    #make pct change in GPA
+    for x in range(6, pred_grade-1):
+        gpaChng = 'g' + str(x+1) + '_gpa_pctchng'
+        colList = ['g' + str(x) + '_gpa', 'g' + str(x+1) + '_gpa']
+        data[gpaChng] = (data['g' + str(x+1) + '_gpa'] - data['g' + str(x) + '_gpa'])
+
     return data
 
 def prepareData(data, cohort, pred_grade):
@@ -183,7 +190,7 @@ def prepareData(data, cohort, pred_grade):
     #impute data 
     data = imputeData(data)
     #feature gen
-    #data = featureGen(data)
+    data = featureGen(data, pred_grade)
     #drop data if still missing
     data = data[data[DV].notnull()]
 
@@ -329,27 +336,37 @@ def plot_precision_recall_n(y_actual, y_prob, model_name):
     plt.title(name)
     plt.savefig('/mnt/data2/education_data/mcps/school-dropout-predictions/graphs/' + model_name + '_precision_recall_n.png')
  
-def test_second_dataset(X_train, Y_train, X_test, Y_test, name, classifier):
+def test_second_dataset(x_train, y_train, x_test, y_test, names, classifiers):
 
     clf_results = {}
-    y_pred = Y_test.copy()
-    model = classifier
-    
+
+    y_pred = y_test.copy()
+    for name, classifier in zip(names, classifiers):
+        model = classifier
+   
+        #mean imputation
+    for col in x_train.columns.tolist():
+        x_train[col] = x_train[col].fillna(value=x_train[col].mean())
+    for col in x_test.columns.tolist():
+        x_test[col] = x_test[col].fillna(value=x_test[col].mean())
+ 
     # Train the model
     train_t0 = time.time()
-    model.fit(X_train, Y_train)
+    model.fit(x_train, y_train)
     train_t1 = time.time()
     train_time = train_t1 - train_t0
 
     test_t0 = time.time()
-    y_pred = model.predict(X_test)
+    y_pred = model.predict(x_test)
     test_t1 = time.time()
     test_time = test_t1 - test_t0
 
     # Evaluate model 
-    name = "Cohort 2: " + classifier
-    clf_results[classifier] = getScores(clf_results, name, clf, Y_test, y_pred, X_test, train_time, test_time)
-    plot_precision_recall_n(Y_train, y_pred, name)
+    name = "Cohort 2: " + name
+    clf_results[classifier] = getScores(clf_results, name, classifier, y_test, y_pred, x_test, train_time, test_time)
+    plot_precision_recall_n(y_test, y_pred, name)
+
+    print clf_results
 
 #-------------------------------------------------------
 
@@ -359,7 +376,7 @@ if __name__ == '__main__':
     pred_grade = int(sys.argv[1])
     DV = 'g' + str(pred_grade) + '_dropout'
     ready_to_test = sys.argv[2]
-
+    
     ## ORIGINAL DATASETS
     data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
     test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
@@ -373,12 +390,12 @@ if __name__ == '__main__':
     train_x, train_y = data.loc[:,colList], data.loc[:,DV]
     test_x, test_y = test_data.loc[:,colList], test_data.loc[:,DV]
 
-    if not ready_to_test:
+    if ready_to_test == 'False':
         ## BUILD & TEST (TRAINING DATA ONLY)
         buildModel(data, train_x, train_y)
 
     ## APPLY BEST MODEL TO TESTING DATA
-    elif ready_to_test:
-        name = None #insert name of best classifier
-        classifier = None #insert best classifier
-        test_second_dataset(train_x, train_y, test_x, test_y)
+    elif ready_to_test == 'True':
+        name = ['logistic regression', 'random forest'] #insert names of best classifier
+        classifier = [linear_model.LogisticRegression(), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10})] #insert best classifier
+        test_second_dataset(train_x, train_y, test_x, test_y, name, classifier)
