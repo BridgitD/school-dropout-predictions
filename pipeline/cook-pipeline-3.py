@@ -159,7 +159,7 @@ def imputeConditionalMean(data, col):
     return full_data
 
 def featureGen(data):
-    embed()
+    embed() 
     for x in range(6, 13):
         colList = [col for col in data.columns if ('g' + str(x)) in col and 'mpa' in col]
         yrGPA = 'g' + str(x) + '_gpa'
