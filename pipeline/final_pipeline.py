@@ -358,7 +358,7 @@ def test_second_dataset(x_train, y_train, x_test, y_test, names, classifiers):
         train_time = train_t1 - train_t0
 
         test_t0 = time.time()
-        y_pred = model.predict(x_test)
+        y_pred = model.predict_proba(x_test)
         test_t1 = time.time()
         test_time = test_t1 - test_t0
 
