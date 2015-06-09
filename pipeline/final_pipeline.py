@@ -130,6 +130,7 @@ def chooseCols(data, pred_grade):
     return data
 
 def imputeData(data):
+    embed()
     #change msam to missing is msam_NA==1
     nanList =  ['g6_g6msam_nan', 'g7_g7msam_nan', 'g8_g8msam_nan', 'g9_g8msam_nan']
     msamList = [[ 'g6_g6msam_Advanced', 'g6_g6msam_Basic', 'g6_g6msam_Proficient'], ['g7_g7msam_Advanced', 'g7_g7msam_Basic', 'g7_g7msam_Proficient'], ['g8_g8msam_Advanced', 'g8_g8msam_Basic', 'g8_g8msam_Proficient'],['g9_g8msam_Advanced', 'g9_g8msam_Basic', 'g9_g8msam_Proficient']]
@@ -179,7 +180,7 @@ def prepareData(data, cohort, pred_grade):
     #impute data 
     data = imputeData(data)
     #feature gen
-    data = featureGen(data)
+    #data = featureGen(data)
     #drop data if still missing
     data = data[data[DV].notnull()]
 
@@ -352,7 +353,7 @@ def test_second_dataset(X_train, Y_train, X_test, Y_test, name, classifier):
 if __name__ == '__main__':
 
     #define constants
-    pred_grade = sys.argv[1]
+    pred_grade = int(sys.argv[1])
     DV = 'g' + str(pred_grade) + '_dropout'
     ready_to_test = sys.argv[2]
 
@@ -375,6 +376,6 @@ if __name__ == '__main__':
 
     ## APPLY BEST MODEL TO TESTING DATA
     elif ready_to_test:
-        name = #insert name of best classifier
-        classifier = #insert best classifier
+        name = None #insert name of best classifier
+        classifier = None #insert best classifier
         test_second_dataset(train_x, train_y, test_x, test_y)
