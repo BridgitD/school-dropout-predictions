@@ -358,14 +358,15 @@ def test_second_dataset(x_train, y_train, x_test, y_test, names, classifiers):
         train_time = train_t1 - train_t0
 
         test_t0 = time.time()
-        y_pred = model.predict_proba(x_test)
+        y_probs = model.predict_proba(x_test)
+        y_pred = model.predict(x_test)
         test_t1 = time.time()
         test_time = test_t1 - test_t0
 
         # Evaluate model 
         name = "Cohort 2: " + name
         clf_results[classifier] = getScores(clf_results, name, classifier, y_test, y_pred, x_test, train_time, test_time)
-        plot_precision_recall_n(y_test, y_pred, name)
+        plot_precision_recall_n(y_test, y_probs, name)
 
     print clf_results
 
