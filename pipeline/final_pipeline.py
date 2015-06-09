@@ -340,31 +340,32 @@ def test_second_dataset(x_train, y_train, x_test, y_test, names, classifiers):
 
     clf_results = {}
 
-    y_pred = y_test.copy()
-    for name, classifier in zip(names, classifiers):
-        model = classifier
-   
-        #mean imputation
+    #mean imputation
     for col in x_train.columns.tolist():
         x_train[col] = x_train[col].fillna(value=x_train[col].mean())
     for col in x_test.columns.tolist():
         x_test[col] = x_test[col].fillna(value=x_test[col].mean())
  
-    # Train the model
-    train_t0 = time.time()
-    model.fit(x_train, y_train)
-    train_t1 = time.time()
-    train_time = train_t1 - train_t0
+    y_pred = y_test.copy()
 
-    test_t0 = time.time()
-    y_pred = model.predict(x_test)
-    test_t1 = time.time()
-    test_time = test_t1 - test_t0
+    for name, classifier in zip(names, classifiers):
+        model = classifier
+       
+        # Train the model
+        train_t0 = time.time()
+        model.fit(x_train, y_train)
+        train_t1 = time.time()
+        train_time = train_t1 - train_t0
 
-    # Evaluate model 
-    name = "Cohort 2: " + name
-    clf_results[classifier] = getScores(clf_results, name, classifier, y_test, y_pred, x_test, train_time, test_time)
-    plot_precision_recall_n(y_test, y_pred, name)
+        test_t0 = time.time()
+        y_pred = model.predict(x_test)
+        test_t1 = time.time()
+        test_time = test_t1 - test_t0
+
+        # Evaluate model 
+        name = "Cohort 2: " + name
+        clf_results[classifier] = getScores(clf_results, name, classifier, y_test, y_pred, x_test, train_time, test_time)
+        plot_precision_recall_n(y_test, y_pred, name)
 
     print clf_results
 
