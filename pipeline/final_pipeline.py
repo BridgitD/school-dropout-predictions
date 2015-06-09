@@ -347,6 +347,7 @@ def test_second_dataset(x_train, y_train, x_test, y_test, names, classifiers):
         x_test[col] = x_test[col].fillna(value=x_test[col].mean())
  
     y_pred = y_test.copy()
+    y_probs = y_test.copy()
 
     for name, classifier in zip(names, classifiers):
         model = classifier
@@ -362,7 +363,7 @@ def test_second_dataset(x_train, y_train, x_test, y_test, names, classifiers):
         y_pred = model.predict(x_test)
         test_t1 = time.time()
         test_time = test_t1 - test_t0
-
+        embed()
         # Evaluate model 
         name = "Cohort 2: " + name
         clf_results[classifier] = getScores(clf_results, name, classifier, y_test, y_pred, x_test, train_time, test_time)
