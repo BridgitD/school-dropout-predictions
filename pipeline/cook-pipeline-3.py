@@ -163,7 +163,7 @@ def featureGen(data):
     for x in range(6, 13):
         colList = [col for col in data.columns if ('g' + str(x)) in col and 'mpa' in col]
         yrGPA = 'g' + str(x) + '_gpa'
-        data[yr_GPA] = 
+        data[yr_GPA] = data[colList].mean(axis=0)
     return data
 
 def fitClf(clf, x_train, x_test, y_train, train_index, test_index, y_pred, y_pred_proba):
