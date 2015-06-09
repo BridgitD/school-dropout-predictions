@@ -88,6 +88,10 @@ def cleanData(data, cohort):
         data.drop(grade_col, axis=1, inplace=True)
         year+=1
 
+    #for cohort 1: drop g7_g7msam -- data not provided cohort 2
+    if cohort == 1:
+        data.drop('g7_g7msam', axis=1, inplace=True)
+
     return data
 
 def makeDummies(data):
@@ -130,10 +134,9 @@ def chooseCols(data, pred_grade):
     return data
 
 def imputeData(data):
-    embed()
     #change msam to missing is msam_NA==1
-    nanList =  ['g6_g6msam_nan', 'g7_g7msam_nan', 'g8_g8msam_nan', 'g9_g8msam_nan']
-    msamList = [[ 'g6_g6msam_Advanced', 'g6_g6msam_Basic', 'g6_g6msam_Proficient'], ['g7_g7msam_Advanced', 'g7_g7msam_Basic', 'g7_g7msam_Proficient'], ['g8_g8msam_Advanced', 'g8_g8msam_Basic', 'g8_g8msam_Proficient'],['g9_g8msam_Advanced', 'g9_g8msam_Basic', 'g9_g8msam_Proficient']]
+    nanList =  ['g6_g6msam_nan', 'g8_g8msam_nan', 'g9_g8msam_nan']
+    msamList = [[ 'g6_g6msam_Advanced', 'g6_g6msam_Basic', 'g6_g6msam_Proficient'], ['g8_g8msam_Advanced', 'g8_g8msam_Basic', 'g8_g8msam_Proficient'],['g9_g8msam_Advanced', 'g9_g8msam_Basic', 'g9_g8msam_Proficient']]
     for x in range(0,len(nanList)):
         nacol = nanList[x]
         colList = msamList[x]
