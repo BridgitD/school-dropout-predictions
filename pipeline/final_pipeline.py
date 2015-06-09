@@ -3,30 +3,30 @@ Christine Cook
 Machine Learning
 
 Notes:
-RF sometimes has 0 for precision.recall/f1
-LReg accuracy is weird
-add k-folds
-add mispredict tree
-add precison-recall curve
+display tree
+
+
 feature generation
 switch to cohort 2 testing
 '''
 from IPython import embed
 import pandas as pd
-import matplotlib
-matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
-import matplotlib.pyplot as plt
 import numpy as np 
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, BaggingClassifier
 from sklearn.metrics import roc_curve, auc, accuracy_score, precision_score, f1_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree, datasets, linear_model
-from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier  
 import time
+from sklearn import tree
+from sklearn.cross_validation import KFold
 from sklearn.linear_model import SGDClassifier
+import matplotlib
+matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
+import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve
+import sys
 
 
 def getSumStats(data):
@@ -36,32 +36,6 @@ def getSumStats(data):
     desc = pd.concat([desc.T, mode])
     desc.rename({0:'mode', '50%':'median'}, inplace=True)
     desc.to_csv("data_sumstats.csv")
-
-def makeChartDiscrete(data, col, title):
-    data_copy = data
-    data_copy = data_copy.dropna()
-    data_max = data_copy.iloc[:,col].max()
-    step = (data_max/50)
-    if step < 1:
-        bins=list(range(0, int(data_max), 1))
-    else:
-        bins=list(range(0, int(data_max), step))
-    pl.figure()
-    pl.title(title)
-    pl.xlabel(title)
-    pl.ylabel('Frequency')
-    bins = pl.hist(data_copy.iloc[:,col], bins)
-    pl.savefig(title)
-
-def makeChartContinuous(data, col, title):
-    y_vals = data.iloc[:,col]
-    data_id = data.iloc[:,0]
-    pl.figure()
-    pl.title(title)
-    pl.xlabel(title)
-    pl.ylabel('Frequency')
-    pl.scatter(y_vals,data_id)
-    pl.savefig(title)
 
 def cleanData(data, cohort):
     if cohort == 1:
@@ -117,6 +91,7 @@ def cleanData(data, cohort):
     return data
 
 def makeDummies(data):
+    data = data.convert_objects(convert_numeric=True)
     data = pd.get_dummies(data, dummy_na=True)
 
     return data
@@ -138,7 +113,8 @@ def limitRows(data, pred_grade):
 def chooseCols(data, pred_grade):
     #drop 'future' vars
     for x in range(pred_grade, 13):
-        dropVars = [col for col in data.columns if str(x) in col]
+        grade = 'g' + str(x)
+        dropVars = [col for col in data.columns if grade in col]
         dropoutVar = 'g' + str(x) + '_dropout'
         if dropoutVar in dropVars:
             dropVars.remove(dropoutVar)
@@ -174,49 +150,154 @@ def imputeData(data):
 
     return data
 
-def plotROC(name, probs, test_data):
-    fpr, tpr, thresholds = roc_curve(test_data['g12_dropout'], probs)
-    roc_auc = auc(fpr, tpr)
-    pl.clf()
-    pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
-    pl.plot([0, 1], [0, 1], 'k--')
-    pl.xlim([0.0, 1.05])
-    pl.ylim([0.0, 1.05])
-    pl.xlabel('False Positive Rate')
-    pl.ylabel('True Positive Rate')
-    pl.title(name) 
-    pl.legend(loc="lower right")
-    pl.savefig(name)
+def imputeConditionalMean(data, col):
+    
+    full_data = pd.DataFrame()
+    yes = data[data[col] == 1].fillna(data[data[col] == 1].mean())
+    no = data[data[col] == 0].fillna(data[data[col] == 0].mean())
+    full_data = pd.concat([yes, no])
 
-def fitClf(clf, x_train, y_train, x_test):
+    return full_data
+
+def featureGen(data):
+    embed() 
+    for x in range(6, 13):
+        colList = [col for col in data.columns if ('g' + str(x)) in col and 'mpa' in col]
+        yrGPA = 'g' + str(x) + '_gpa'
+        data[yr_GPA] = data[colList].mean(axis=0)
+    return data
+
+def prepareData(data, cohort, pred_grade):
+    #clean data
+    data = cleanData(data, cohort)
+    #make dummies
+    data = makeDummies(data)
+    #limit rows to valid
+    data = limitRows(data, pred_grade)
+    #shrink dataset size
+    data = chooseCols(data, pred_grade)
+    #impute data 
+    data = imputeData(data)
+    #feature gen
+    data = featureGen(data)
+    #drop data if still missing
+    data = data[data[DV].notnull()]
+
+    return data
+
+def buildModel(data, x, y):
+    '''
+    Takes training set and builds models, using 5-fold cross-validation
+    '''
+    # define parameters
+    names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "AdaBoost", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
+    classifiers = [KNeighborsClassifier(3), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, class_weight = {0: 1, 1:10}), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="modified_huber", penalty="l2", class_weight = {0: 1, 1:10})]
+
+    clf_results = {}
+
+    #loop through classifiers
+    for name, clf in zip(names, classifiers):
+        y_pred = y.copy()
+        y_pred_proba = y.copy()
+        clf_results[name] = {}
+
+        #start k-fold
+        kf = KFold(len(y),n_folds=5,shuffle=True)
+        for train_index, test_index in kf:
+            x_train, x_test = x.iloc[train_index], x.iloc[test_index]
+            y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+            #mean imputation
+            for col in x_train.columns.tolist():
+                x_train[col] = x_train[col].fillna(value=x_train[col].mean())
+            for col in x_test.columns.tolist():
+                x_test[col] = x_test[col].fillna(value=x_test[col].mean())
+
+            #get predictions, scores, make miss-classified tree
+            y_pred, y_pred_proba, train_time, test_time = fitClf(clf, x_train, x_test, y_train, train_index, test_index, y_pred, y_pred_proba)
+        
+        for col in x.columns.tolist():
+            x[col] = x[col].fillna(value=x[col].mean())
+
+        #get results
+        clf_results[name] = getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time)
+        
+        #plot precision recall
+        plot_precision_recall_n(y, y_pred_proba, name)
+
+        #get missclassified tree
+        #findMisClf(data, x, y, y_pred, name)
+
+    print clf_results 
+    print "End"
+
+
+def fitClf(clf, x_train, x_test, y_train, train_index, test_index, y_pred, y_pred_proba):
     train_t0 = time.time()
     clf.fit(x_train, y_train)
     train_t1 = time.time()
 
     test_t0 = time.time()
-    preds = clf.predict(x_test).round()
-    try:
-        probs = clf.predict_proba(x_test)
-    except:
-        probs = None
+    y_pred.iloc[test_index] = clf.predict(x_test)
     test_t1 = time.time()
-    return preds, probs, (train_t1-train_t0), (test_t1-test_t0)
+    y_pred_proba.iloc[test_index] = clf.predict_proba(x_test)
+    return y_pred, y_pred_proba, (train_t1-train_t0), (test_t1-test_t0)
 
-def getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time):
+def getScores(clf_results, name, clf, y, y_pred, x, train_time, test_time):
     print name
-    precision = precision_score(y_test, preds) 
-    recall = recall_score(y_test, preds)
-    f1 = f1_score(y_test, preds)
-    accuracy = clf.score(x_test, y_test)
-    clf_results[x][name] = {}
-    clf_results[x][name]['accuracy'] = accuracy
-    clf_results[x][name]['precision'] = precision
-    clf_results[x][name]['recall'] = recall
-    clf_results[x][name]['f1'] = f1
-    clf_results[x][name]['train_time'] = train_time
-    clf_results[x][name]['test_time'] = test_time
-    print clf_results[x][name]
-    return clf_results[x][name]
+    precision = precision_score(y, y_pred) 
+    recall = recall_score(y, y_pred)
+    f1 = f1_score(y, y_pred)
+    accuracy = clf.score(x, y)
+    clf_results[name] = {}
+    clf_results[name]['accuracy'] = accuracy
+    clf_results[name]['precision'] = precision
+    clf_results[name]['recall'] = recall
+    clf_results[name]['f1'] = f1
+    clf_results[name]['train_time'] = train_time
+    clf_results[name]['test_time'] = test_time
+    return clf_results[name]
+
+def findMisClf(df, X, y, y_pred, name):
+    '''
+    Takes a dataframe (df), column names of predictors (X) and a dependent
+    variable (y). Loops over generic classifiers to find predictions. Creates
+    a decision tree using prediction misclassification as the dependent variable.
+    '''
+
+    var_name = name + '_predict'
+    try:
+        df[var_name] = y_pred
+    except:
+        import pdb
+        pdb.set_trace()
+    correct = name + '_correct'
+    
+    # Determine "correctness" based on 0.5 threshold
+    df[correct] = (df[var_name] > 0.5).astype(int)
+
+    # Determine which observations are being misclassified
+    tree = DecisionTreeClassifier(max_depth=3)
+    tree.fit(X, df[correct])
+    feature_names = df.columns
+    left, right = tree.tree_.children_left, tree.tree_.children_right
+    threshold = tree.tree_.threshold
+    features = [feature_names[i] for i in tree.tree_.feature]
+    value = tree.tree_.value
+ 
+    def recurse(left, right, threshold, features, node):
+            if (threshold[node] != -2):
+                    print "if ( " + features[node] + " <= " + str(threshold[node]) + " ) {"
+                    if left[node] != -1:
+                            recurse (left, right, threshold, features,left[node])
+                    print "      } else {"
+                    if right[node] != -1:
+                            recurse (left, right, threshold, features,right[node])
+                    print "}"
+            else:
+                    print "return " + str(value[node])
+
+    recurse(left, right, threshold, features, 0)
 
 def plot_precision_recall_n(y_actual, y_prob, model_name):
     y_score = y_prob
@@ -244,62 +325,56 @@ def plot_precision_recall_n(y_actual, y_prob, model_name):
     plt.title(name)
     plt.savefig('/mnt/data2/education_data/mcps/school-dropout-predictions/graphs/' + model_name + '_precision_recall_n.png')
  
+def test_second_dataset(X_train, Y_train, X_test, Y_test, name, classifier):
 
-def main():
+    clf_results = {}
+    y_pred = Y_test.copy()
+    model = classifier
+    
+    # Train the model
+    train_t0 = time.time()
+    model.fit(X_train, Y_train)
+    train_t1 = time.time()
+    train_time = train_t1 - train_t0
+
+    test_t0 = time.time()
+    y_pred = model.predict(X_test)
+    test_t1 = time.time()
+    test_time = test_t1 - test_t0
+
+    # Evaluate model 
+    name = "Cohort 2: " + classifier
+    clf_results[classifier] = getScores(clf_results, name, clf, Y_test, y_pred, X_test, train_time, test_time)
+    plot_precision_recall_n(Y_train, y_pred, name)
+
+#-------------------------------------------------------
+
+if __name__ == '__main__':
+
     #define constants
-    pred_grade = 12
+    pred_grade = sys.argv[1]
     DV = 'g' + str(pred_grade) + '_dropout'
+    ready_to_test = sys.argv[2]
 
-    #read data
+    ## ORIGINAL DATASETS
     data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort1_all_school.csv', index_col=False)
-    #test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
+    test_data = pd.read_csv('/mnt/data2/education_data/mcps/DATA_DO_NOT_UPLOAD/cohort2_all_school.csv', index_col=False)
+    
+    data = prepareData(data, 1, pred_grade)
+    test_data = prepareData(test_data, 2, pred_grade)
 
-    #clean data
-    data = cleanData(data, 1)
-    #make dummies
-    data = makeDummies(data)
-    #limit rows to valid
-    data = limitRows(data, pred_grade)
-    #shrink dataset size
-    data = chooseCols(data, pred_grade)
-    #impute data 
-    data = imputeData(data)
-    #drop data if still missing
-    data = data[data[DV].notnull()]
-    #mean-impute the rest
-    for col in data.columns.tolist():
-        data[col] = data[col].fillna(value=data[col].mean())
+    ## DEFINE X & Y
+    colList = data.columns.tolist()
+    colList.remove(DV)
+    train_x, train_y = data.loc[:,colList], data.loc[:,DV]
+    test_x, test_y = test_data.loc[:,colList], test_data.loc[:,DV]
 
+    if not ready_to_test:
+        ## BUILD & TEST (TRAINING DATA ONLY)
+        buildModel(data, train_x, train_y)
 
-    # define parameters
-    names = ["Nearest Neighbors", "Linear SVM", "Decision Tree", "Random Forest", "AdaBoost", "Linear Regression", "Bagging", "Logistic Regression", "Stochastic Gradient Descent"]
-    classifiers = [KNeighborsClassifier(3), LinearSVC(C=0.025), DecisionTreeClassifier(max_depth=5), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), BaggingClassifier(), linear_model.LogisticRegression(), SGDClassifier(loss="hinge", penalty="l2")]
-
-    #start k-fold
-    for x in range(0, 1):
-        print "Split: " + str(x)
-        train_data, test_data = train_test_split(data, test_size=.2)
-
-        # define xs, y
-        colList = data.columns.tolist()
-        colList.remove(DV)
-        x_train, x_test = train_data.loc[:,colList], test_data.loc[:,colList]
-        y_train, y_test = train_data.loc[:,DV], test_data.loc[:,DV]
-
-
-        #loop through classifiers, get predictions, scores
-        clf_results = {}
-        clf_results[x] = {}
-        for name, clf in zip(names, classifiers):
-            preds, probs, train_time, test_time = fitClf(clf, x_train, y_train, x_test)
-            clf_results[x][name] = getScores(clf_results, x, name, clf, y_test, preds, x_test, train_time, test_time)
-	    try:
-	        plot_precision_recall_n(y_test, probs[:,1], name) 
-	    except:
-	        pass
-
-    print clf_results
-    print "End"
-
-
-main()
+    ## APPLY BEST MODEL TO TESTING DATA
+    elif ready_to_test:
+        name = #insert name of best classifier
+        classifier = #insert best classifier
+        test_second_dataset(train_x, train_y, test_x, test_y)
