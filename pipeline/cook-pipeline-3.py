@@ -159,8 +159,8 @@ def imputeConditionalMean(data, col):
     return full_data
 
 def featureGen(data):
-    for x in range():
-
+    for x in range(6, 13):
+        pass
     return data
 
 def fitClf(clf, x_train, x_test, y_train, train_index, test_index, y_pred, y_pred_proba):
